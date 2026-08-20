@@ -31,4 +31,4 @@ A CI/CD-driven production work order management system built as part of a DevOps
 5. Visit `http://localhost:8080`
 
 ## Project Status
-🚧 In development — Week 4 of 15 (Git/CI-CD setup phase)
+   In development — Week 4 of 15 (Git/CI-CD setup phase)
