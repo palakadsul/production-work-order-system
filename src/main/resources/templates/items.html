@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Item Catalogue - PWOS</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f7f8fa; }
+        h1 { color: #2f5496; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; background: white; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #2f5496; color: white; }
+        tr:nth-child(even) { background: #f2f2f2; }
+        form.inline { display: inline; }
+        .add-form { margin-top: 30px; background: white; padding: 20px; border: 1px solid #ddd; }
+        .add-form input { margin: 5px; padding: 6px; }
+        .add-form button { padding: 6px 16px; background: #2f5496; color: white; border: none; cursor: pointer; }
+        .low-stock { color: #c0392b; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Item Catalogue</h1>
+
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>SKU</th>
+            <th>Quantity</th>
+            <th>Reorder Threshold</th>
+            <th>Action</th>
+        </tr>
+        <tr th:each="item : ${items}">
+            <td th:text="${item.id}"></td>
+            <td th:text="${item.name}"></td>
+            <td th:text="${item.sku}"></td>
+            <td th:text="${item.quantity}"
+                th:classappend="${item.quantity <= item.reorderThreshold} ? 'low-stock' : ''"></td>
+            <td th:text="${item.reorderThreshold}"></td>
+            <td>
+                <form class="inline" th:action="@{/items/{id}/delete(id=${item.id})}" method="post">
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+    </table>
+
+    <div class="add-form">
+        <h3>Add New Item</h3>
+        <form th:action="@{/items}" th:object="${newItem}" method="post">
+            <input type="text" th:field="*{name}" placeholder="Name" required>
+            <input type="text" th:field="*{sku}" placeholder="SKU" required>
+            <input type="number" th:field="*{quantity}" placeholder="Quantity" required>
+            <input type="number" th:field="*{reorderThreshold}" placeholder="Reorder Threshold" required>
+            <button type="submit">Add Item</button>
+        </form>
+    </div>
+</body>
+</html>
