@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Item Catalogue - PWOS</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, 'Inter', 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            background: #f4f5fb;
+            color: #1f2233;
+        }
+        .wrap { max-width: 1100px; margin: 0 auto; padding: 48px 32px; }
+        h1 { font-size: 28px; font-weight: 700; margin: 0 0 4px; }
+        .subtitle { color: #8b8fa3; font-size: 14px; margin: 0 0 32px; }
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(20,20,50,0.06), 0 8px 24px rgba(20,20,50,0.04);
+            padding: 28px;
+            margin-bottom: 28px;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            text-align: left;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #9295a8;
+            font-weight: 600;
+            padding: 0 12px 12px;
+            border-bottom: 1px solid #eceef5;
+        }
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #f2f3f8;
+            font-size: 14px;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #fafbfe; }
+        .qty-low { color: #e0532e; font-weight: 700; }
+        .qty-ok { color: #1f2233; font-weight: 600; }
+        .btn-delete {
+            background: #fff;
+            border: 1px solid #f0d3d3;
+            color: #d1453b;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .btn-delete:hover { background: #fdf1f1; }
+        .card h3 { margin: 0 0 20px; font-size: 16px; font-weight: 700; }
+        .form-row { display: flex; gap: 12px; flex-wrap: wrap; }
+        .form-row input {
+            flex: 1;
+            min-width: 140px;
+            padding: 11px 14px;
+            border: 1px solid #e4e6f0;
+            border-radius: 10px;
+            font-size: 14px;
+            background: #fbfbfe;
+        }
+        .form-row input:focus { outline: none; border-color: #6c63ff; background: #fff; }
+        .btn-primary {
+            background: #6c63ff;
+            color: #fff;
+            border: none;
+            padding: 11px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .btn-primary:hover { background: #5a52e0; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <h1>Item Catalogue</h1>
+    <p class="subtitle">Track stock levels and reorder thresholds</p>
+
+    <div class="card">
+        <table>
+            <tr>
+                <th>ID</th><th>Name</th><th>SKU</th><th>Quantity</th><th>Reorder Threshold</th><th></th>
+            </tr>
+            <tr th:each="item : ${items}">
+                <td th:text="${item.id}"></td>
+                <td th:text="${item.name}"></td>
+                <td th:text="${item.sku}"></td>
+                <td>
+                    <span th:class="${item.quantity <= item.reorderThreshold} ? 'qty-low' : 'qty-ok'"
+                          th:text="${item.quantity}"></span>
+                </td>
+                <td th:text="${item.reorderThreshold}"></td>
+                <td>
+                    <form th:action="@{/items/{id}/delete(id=${item.id})}" method="post">
+                        <button type="submit" class="btn-delete">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>Add New Item</h3>
+        <form th:action="@{/items}" method="post" class="form-row">
+            <input type="text" name="name" placeholder="Name" required>
+            <input type="text" name="sku" placeholder="SKU" required>
+            <input type="number" name="quantity" placeholder="Quantity" required>
+            <input type="number" name="reorderThreshold" placeholder="Reorder Threshold" required>
+            <button type="submit" class="btn-primary">Add Item</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>
