@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Work Orders - PWOS</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f7f8fa; }
+        h1 { color: #2f5496; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; background: white; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #2f5496; color: white; }
+        tr:nth-child(even) { background: #f2f2f2; }
+        .add-form { margin-top: 30px; background: white; padding: 20px; border: 1px solid #ddd; }
+        .add-form input, .add-form select { margin: 5px; padding: 6px; }
+        .add-form button { padding: 6px 16px; background: #2f5496; color: white; border: none; cursor: pointer; }
+        .filter-bar { margin-top: 20px; }
+        .badge { padding: 4px 10px; border-radius: 12px; color: white; font-size: 0.85em; }
+        .badge.PENDING { background: #e67e22; }
+        .badge.IN_PROGRESS { background: #2980b9; }
+        .badge.DONE { background: #27ae60; }
+        .overdue { color: #c0392b; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Work Orders</h1>
+    <div class="filter-bar">
+        <form th:action="@{/orders}" method="get">
+            <label>Filter by status:</label>
+            <select name="status" onchange="this.form.submit()">
+                <option value="">All</option>
+                <option value="PENDING" th:selected="${statusFilter == 'PENDING'}">Pending</option>
+                <option value="IN_PROGRESS" th:selected="${statusFilter == 'IN_PROGRESS'}">In Progress</option>
+                <option value="DONE" th:selected="${statusFilter == 'DONE'}">Done</option>
+            </select>
+        </form>
+    </div>
+    <table>
+        <tr>
+            <th>ID</th><th>Item</th><th>Quantity</th><th>Due Date</th><th>Status</th><th>Update</th>
+        </tr>
+        <tr th:each="order : ${orders}">
+            <td th:text="${order.id}"></td>
+            <td th:text="${order.item.name}"></td>
+            <td th:text="${order.quantity}"></td>
+            <td th:text="${order.dueDate}"></td>
+            <td><span class="badge" th:classappend="${order.status}" th:text="${order.status}"></span></td>
+            <td>
+                <form th:action="@{/orders/{orderId}/status(orderId=${order.id})}" method="post">
+                    <select name="status" onchange="this.form.submit()">
+                        <option value="PENDING" th:selected="${order.status == 'PENDING'}">Pending</option>
+                        <option value="IN_PROGRESS" th:selected="${order.status == 'IN_PROGRESS'}">In Progress</option>
+                        <option value="DONE" th:selected="${order.status == 'DONE'}">Done</option>
+                    </select>
+                </form>
+            </td>
+        </tr>
+    </table>
+    <div class="add-form">
+        <h3>Create Work Order</h3>
+        <form th:action="@{/orders}" method="post">
+            <select name="itemId">
+                <option
+                    th:each="item : ${items}"
+                    th:value="${item.id}"
+                    th:text="${item.name}">
+                </option>
+            </select>
+            <input type="number" name="quantity" placeholder="Quantity" required>
+            <input type="date" name="dueDate">
+            <button type="submit">Create Order</button>
+        </form>
+    </div>
+</body>
+</html>
