@@ -93,6 +93,11 @@
 <div class="wrap">
     <h1>Work Orders</h1>
     <p class="subtitle">Create and track production orders</p>
+    <div th:if="${!overdueOrders.isEmpty()}" style="background:#fdecea; border:1px solid #f5c6c0; color:#a5302a; padding:14px 20px; border-radius:12px; margin-bottom:24px; font-size:14px;">
+        <strong>⚠ Overdue Orders:</strong>
+        <span th:text="${overdueOrders.size()} + ' order(s) past due date and not yet Done.'"></span>
+    </div>
+
 
     <div class="filter-bar">
         <form th:action="@{/orders}" method="get">

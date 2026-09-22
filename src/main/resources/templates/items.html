@@ -81,6 +81,18 @@
 <div class="wrap">
     <h1>Item Catalogue</h1>
     <p class="subtitle">Track stock levels and reorder thresholds</p>
+    <div th:if="${deleteError}" style="background:#fdecea; border:1px solid #f5c6c0; color:#a5302a; padding:14px 20px; border-radius:12px; margin-bottom:24px; font-size:14px;">
+        <span th:text="${deleteError}"></span>
+    </div>
+
+    <div th:if="${!lowStockItems.isEmpty()}" style="background:#fdecea; border:1px solid #f5c6c0; color:#a5302a; padding:14px 20px; border-radius:12px; margin-bottom:24px; font-size:14px;">
+        <strong>⚠ Low Stock Alert:</strong>
+        <span th:each="li, iter : ${lowStockItems}">
+            <span th:text="${li.name}"></span><span th:if="${!iter.last}">, </span>
+        </span>
+        <span th:text="${lowStockItems.size()} + ' item(s) at or below reorder threshold.'"></span>
+    </div>
+
 
     <div class="card">
         <table>
