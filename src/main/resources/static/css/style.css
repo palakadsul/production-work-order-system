@@ -1,0 +1,159 @@
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    font-family: -apple-system, 'Inter', 'Segoe UI', Arial, sans-serif;
+    background: #cfd5f0;
+    color: #1f2233;
+    padding: 32px;
+}
+.app {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
+    background: #f6f7fd;
+    border-radius: 24px;
+    overflow: hidden;
+    min-height: 80vh;
+    box-shadow: 0 20px 60px rgba(60, 70, 140, 0.18);
+}
+.sidebar {
+    width: 250px;
+    background: linear-gradient(180deg, #2f5fd8 0%, #4f6bed 100%);
+    display: flex;
+    flex-direction: column;
+    padding-top: 28px;
+}
+.brand {
+    text-align: center;
+    color: #fff;
+    text-decoration: none;
+    padding-bottom: 22px;
+}
+.brand .brand-icon { font-size: 40px; }
+.brand .brand-name { font-size: 26px; font-weight: 800; margin-top: 6px; }
+.brand .brand-sub { font-size: 12px; opacity: 0.85; margin-top: 4px; }
+.nav-panel {
+    flex: 1;
+    background: #fff;
+    border-radius: 24px 24px 0 0;
+    padding: 18px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #3b3f58;
+    font-size: 14px;
+    font-weight: 600;
+}
+.nav-item .nav-icon { font-size: 18px; width: 22px; text-align: center; }
+.nav-item:hover { background: #f0f2fc; }
+.nav-item.active { background: #4f6bed; color: #fff; }
+.main { flex: 1; padding: 36px 40px; }
+h1 { font-size: 28px; margin: 0 0 4px; }
+.subtitle { color: #8b8fa3; font-size: 14px; margin: 0 0 28px; }
+.stats { display: flex; gap: 18px; margin-bottom: 28px; }
+.stat {
+    flex: 1;
+    background: #fff;
+    border-radius: 18px;
+    padding: 20px;
+    box-shadow: 0 4px 16px rgba(60, 70, 140, 0.06);
+}
+.stat .label { font-size: 12px; color: #9aa0bd; }
+.stat .value { font-size: 26px; font-weight: 700; margin-top: 6px; }
+.stat.orange .value { color: #f0a446; }
+.stat.red .value { color: #e5645a; }
+.stat.blue .value { color: #4f6bed; }
+.card {
+    background: #fff;
+    border-radius: 18px;
+    padding: 26px;
+    margin-bottom: 26px;
+    box-shadow: 0 4px 16px rgba(60, 70, 140, 0.06);
+}
+.card h3 { margin: 0 0 18px; font-size: 16px; }
+.alert {
+    background: #fdecea;
+    border: 1px solid #f5c6c0;
+    color: #a5302a;
+    padding: 14px 20px;
+    border-radius: 14px;
+    margin-bottom: 24px;
+    font-size: 14px;
+}
+table { width: 100%; border-collapse: collapse; }
+th {
+    text-align: left;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #9aa0bd;
+    padding: 0 12px 12px;
+    border-bottom: 1px solid #eceef8;
+}
+td { padding: 14px 12px; border-bottom: 1px solid #f2f3fa; font-size: 14px; }
+tr:last-child td { border-bottom: none; }
+.badge {
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+}
+.badge.PENDING { background: #f0a446; }
+.badge.IN_PROGRESS { background: #4f6bed; }
+.badge.DONE { background: #34c38f; }
+.qty-low { color: #e5645a; font-weight: 700; }
+.qty-ok { color: #1f2233; font-weight: 600; }
+select, input {
+    padding: 11px 14px;
+    border: 1px solid #e4e6f5;
+    border-radius: 10px;
+    font-size: 14px;
+    background: #fbfbfe;
+}
+select:focus, input:focus { outline: none; border-color: #4f6bed; }
+.form-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.form-row input, .form-row select { flex: 1; min-width: 140px; }
+.btn-primary {
+    background: #4f6bed;
+    color: #fff;
+    border: none;
+    padding: 11px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.btn-primary:hover { background: #3f58d4; }
+.btn-delete {
+    background: #fff;
+    border: 1px solid #f0d3d3;
+    color: #d1453b;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+}
+.btn-delete:hover { background: #fdf1f1; }
+.home-links { display: flex; gap: 18px; flex-wrap: wrap; }
+.home-link {
+    flex: 1;
+    min-width: 220px;
+    background: #fff;
+    border-radius: 18px;
+    padding: 28px;
+    text-decoration: none;
+    color: #1f2233;
+    box-shadow: 0 4px 16px rgba(60, 70, 140, 0.06);
+}
+.home-link:hover { background: #f0f2fc; }
+.home-link .icon { font-size: 32px; }
+.home-link h3 { margin: 12px 0 4px; }
+.home-link p { margin: 0; color: #8b8fa3; font-size: 14px; }

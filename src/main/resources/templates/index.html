@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>PWOS - Home</title>
+    <link
+        rel="stylesheet"
+        th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="app">
+    <div
+        th:replace="~{fragments :: sidebar('home')}"></div>
+
+    <div class="main">
+        <h1>Production Work Order System</h1>
+        <p class="subtitle">Manage inventory and track production orders</p>
+
+        <div class="home-links">
+            <a
+                class="home-link"
+                th:href="@{/items}">
+                <div class="icon">📦</div>
+                <h3>Item Catalogue</h3>
+                <p>Track stock levels and reorder thresholds</p>
+            </a>
+            <a
+                class="home-link"
+                th:href="@{/orders}">
+                <div class="icon">📋</div>
+                <h3>Work Orders</h3>
+                <p>Create and track production orders</p>
+            </a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

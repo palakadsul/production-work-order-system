@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div
+    class="sidebar"
+    th:fragment="sidebar(active)">
+    <a
+        class="brand"
+        th:href="@{/}">
+        <div class="brand-icon">🏭</div>
+        <div class="brand-name">PWOS</div>
+        <div class="brand-sub">Production Work Order System</div>
+    </a>
+    <div class="nav-panel">
+        <a
+            class="nav-item"
+            th:classappend="${active == 'home'} ? 'active'"
+            th:href="@{/}">
+            <span class="nav-icon">🏠</span>Dashboard
+        </a>
+        <a
+            class="nav-item"
+            th:classappend="${active == 'items'} ? 'active'"
+            th:href="@{/items}">
+            <span class="nav-icon">📦</span>Item Catalogue
+        </a>
+        <a
+            class="nav-item"
+            th:classappend="${active == 'orders'} ? 'active'"
+            th:href="@{/orders}">
+            <span class="nav-icon">📋</span>Work Orders
+        </a>
+    </div>
+</div>
+</body>
+</html>
