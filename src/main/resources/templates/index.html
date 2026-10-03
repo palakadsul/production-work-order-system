@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>PWOS - Home</title>
+    <title>PWOS - Dashboard</title>
     <link
         rel="stylesheet"
         th:href="@{/css/style.css}">
@@ -13,24 +13,125 @@
         th:replace="~{fragments :: sidebar('home')}"></div>
 
     <div class="main">
-        <h1>Production Work Order System</h1>
-        <p class="subtitle">Manage inventory and track production orders</p>
+        <h1>Dashboard</h1>
+        <p class="subtitle">Overview of stock and production orders</p>
 
-        <div class="home-links">
+        <div class="stats">
+            <div class="stat blue">
+                <div class="label">Total items</div>
+                <div
+                    class="value"
+                    th:text="${totalItems}">0</div>
+            </div>
+            <div class="stat red">
+                <div class="label">Low stock</div>
+                <div
+                    class="value"
+                    th:text="${lowStockItems.size()}">0</div>
+            </div>
+            <div class="stat blue">
+                <div class="label">Open orders</div>
+                <div
+                    class="value"
+                    th:text="${openOrders}">0</div>
+            </div>
+            <div class="stat red">
+                <div class="label">Overdue</div>
+                <div
+                    class="value"
+                    th:text="${overdueOrders.size()}">0</div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat orange">
+                <div class="label">Pending</div>
+                <div
+                    class="value"
+                    th:text="${pendingCount}">0</div>
+            </div>
+            <div class="stat blue">
+                <div class="label">In progress</div>
+                <div
+                    class="value"
+                    th:text="${inProgressCount}">0</div>
+            </div>
+            <div class="stat green">
+                <div class="label">Done</div>
+                <div
+                    class="value"
+                    th:text="${doneCount}">0</div>
+            </div>
+        </div>
+
+        <div
+            class="alert"
+            th:if="${!lowStockItems.isEmpty()}">
+            <strong>⚠ Low stock:</strong>
+            <span th:each="li, iter : ${lowStockItems}">
+                <span th:text="${li.name}"></span><span th:if="${!iter.last}">, </span>
+            </span>
+        </div>
+
+        <div
+            class="alert"
+            th:if="${!overdueOrders.isEmpty()}">
+            <strong>⚠ Overdue orders:</strong>
+            <span th:each="od, iter : ${overdueOrders}">
+                #<span th:text="${od.id}"></span><span th:if="${!iter.last}">, </span>
+            </span>
+        </div>
+
+        <div class="actions">
             <a
-                class="home-link"
-                th:href="@{/items}">
-                <div class="icon">📦</div>
-                <h3>Item Catalogue</h3>
-                <p>Track stock levels and reorder thresholds</p>
-            </a>
+                class="btn-primary btn-link"
+                th:href="@{/items}">+ Add Item</a>
             <a
-                class="home-link"
-                th:href="@{/orders}">
-                <div class="icon">📋</div>
-                <h3>Work Orders</h3>
-                <p>Create and track production orders</p>
-            </a>
+                class="btn-primary btn-link"
+                th:href="@{/orders}">+ Create Work Order</a>
+        </div>
+
+        <div class="two-col">
+            <div class="card">
+                <h3>Recent Orders</h3>
+                <table>
+                    <tr>
+                        <th>ID</th><th>Item</th><th>Qty</th><th>Due</th><th>Status</th>
+                    </tr>
+                    <tr th:each="order : ${recentOrders}">
+                        <td th:text="${order.id}"></td>
+                        <td th:text="${order.item.name}"></td>
+                        <td th:text="${order.quantity}"></td>
+                        <td th:text="${order.dueDate}"></td>
+                        <td>
+                            <span
+                                class="badge"
+                                th:classappend="${order.status}"
+                                th:text="${order.status}"></span>
+                        </td>
+                    </tr>
+                </table>
+                <p
+                    class="empty"
+                    th:if="${recentOrders.isEmpty()}">No orders yet.</p>
+            </div>
+
+            <div class="card">
+                <h3>Low Stock Items</h3>
+                <table>
+                    <tr>
+                        <th>Item</th><th>Qty</th><th>Threshold</th>
+                    </tr>
+                    <tr th:each="item : ${lowStockItems}">
+                        <td th:text="${item.name}"></td>
+                        <td class="qty-low"><span th:text="${item.quantity}"></span></td>
+                        <td th:text="${item.reorderThreshold}"></td>
+                    </tr>
+                </table>
+                <p
+                    class="empty"
+                    th:if="${lowStockItems.isEmpty()}">All items are above their threshold.</p>
+            </div>
         </div>
     </div>
 </div>
