@@ -8,6 +8,8 @@ pipeline {
 
     environment {
         TEST_PORT = '8090'
+        REGISTRY  = 'localhost:5001'
+        IMAGE     = "localhost:5001/pwos:${BUILD_NUMBER}"
     }
 
     stages {
@@ -35,9 +37,15 @@ pipeline {
             }
         }
 
+        stage('Docker Build') {
+            steps {
+                sh 'docker build -t $IMAGE -t $REGISTRY/pwos:latest .'
+            }
+        }
+
         stage('Deploy to Test') {
             steps {
-                sh 'bash scripts/deploy.sh $TEST_PORT'
+                sh 'bash scripts/deploy-container.sh pwos-test $IMAGE $TEST_PORT'
             }
         }
 
@@ -55,25 +63,32 @@ pipeline {
                           allowEmptyResults: true
                     archiveArtifacts artifacts: 'target/screenshots/*.png',
                                      allowEmptyArchive: true
-                    sh 'bash scripts/stop.sh $TEST_PORT'
+                    sh 'docker rm -f pwos-test || true'
                     sh 'bash scripts/cleanup-test-data.sh'
                 }
             }
         }
 
+        stage('Push Image') {
+            steps {
+                sh 'docker push $IMAGE'
+                sh 'docker push $REGISTRY/pwos:latest'
+            }
+        }
+
         stage('Deploy') {
             steps {
-                sh 'bash scripts/deploy.sh ${DEPLOY_PORT:-8081}'
+                sh 'bash scripts/deploy-container.sh pwos-live $IMAGE ${DEPLOY_PORT:-8081}'
             }
         }
     }
 
     post {
         success {
-            echo "All tests passed. Live app deployed."
+            echo "Image ${env.IMAGE} tested, pushed and deployed."
         }
         failure {
-            echo "Pipeline failed. Live app was NOT changed."
+            echo "Pipeline failed. Live container was NOT changed."
         }
     }
 }

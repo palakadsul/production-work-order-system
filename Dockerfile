@@ -5,9 +5,10 @@ FROM eclipse-temurin:21-jre
 RUN useradd --system --create-home pwos
 WORKDIR /app
 
-# The jar is built by Maven before docker build
-COPY target/pwos-0.0.1-SNAPSHOT.jar app.jar
-RUN chown pwos:pwos app.jar
+# The jar is built by Maven before docker build.
+# --chown sets the owner while copying, so the jar
+# is stored in one layer instead of two.
+COPY --chown=pwos:pwos target/pwos-0.0.1-SNAPSHOT.jar app.jar
 USER pwos
 
 EXPOSE 8080
