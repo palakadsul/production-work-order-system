@@ -53,7 +53,7 @@ public class WorkOrderController {
         order.setItem(item);
         order.setQuantity(quantity);
         order.setDueDate(dueDate);
-        order.setStatus("PENDNG");
+        order.setStatus("PENDING");
         workOrderRepository.save(order);
         return "redirect:/orders";
     }
