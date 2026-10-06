@@ -1,0 +1,64 @@
+
+PLAY [Configure PWOS application node] *****************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [pwos-node]
+
+TASK [Install Java 21, curl and supervisor] ************************************
+ok: [pwos-node]
+
+TASK [Create the pwos system user] *********************************************
+ok: [pwos-node]
+
+TASK [Create application, log and config folders] ******************************
+ok: [pwos-node] => (item={'path': '/opt/pwos', 'owner': 'pwos'})
+ok: [pwos-node] => (item={'path': '/var/log/pwos', 'owner': 'pwos'})
+ok: [pwos-node] => (item={'path': '/etc/pwos', 'owner': 'root'})
+
+TASK [Make sure the local artifact folder exists] ******************************
+ok: [pwos-node -> localhost]
+
+TASK [Remove any leftover extract container] ***********************************
+ok: [pwos-node -> localhost]
+
+TASK [Create a stopped container from the release image] ***********************
+ok: [pwos-node -> localhost]
+
+TASK [Copy the jar out of the container] ***************************************
+ok: [pwos-node -> localhost]
+
+TASK [Remove the extract container] ********************************************
+ok: [pwos-node -> localhost]
+
+TASK [Copy the application jar (version 12)] ***********************************
+changed: [pwos-node]
+
+TASK [Write the environment file] **********************************************
+ok: [pwos-node]
+
+TASK [Write the supervisor service definition] *********************************
+ok: [pwos-node]
+
+TASK [Check whether supervisord is running] ************************************
+ok: [pwos-node]
+
+TASK [Start supervisord] *******************************************************
+skipping: [pwos-node]
+
+TASK [Apply any pending service changes] ***************************************
+
+RUNNING HANDLER [Restart pwos] *************************************************
+changed: [pwos-node]
+
+TASK [Health check on the app port] ********************************************
+FAILED - RETRYING: [pwos-node]: Health check on the app port (14 retries left).
+ok: [pwos-node]
+
+TASK [Report the deployed release] *********************************************
+ok: [pwos-node] => {
+    "msg": "PWOS release 12 is deployed and healthy (HTTP 200)"
+}
+
+PLAY RECAP *********************************************************************
+pwos-node                  : ok=16   changed=2    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
+

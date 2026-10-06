@@ -2,12 +2,20 @@
 - name: Configure PWOS application node
   hosts: pwos_nodes
   vars:
+    # Release to deploy. Override with: -e pwos_version=10
+    pwos_version: "12"
+    registry: localhost:5001
+    image: "{{ registry }}/pwos:{{ pwos_version }}"
+    jar_in_image: /app/app.jar
+    artifact_dir: "{{ playbook_dir }}/artifacts"
+    artifact_jar: "{{ artifact_dir }}/pwos-{{ pwos_version }}.jar"
+    extract_name: "pwos-extract-{{ pwos_version }}"
+
     app_user: pwos
     app_dir: /opt/pwos
     log_dir: /var/log/pwos
     conf_dir: /etc/pwos
     app_port: 8080
-    jar_name: pwos-0.0.1-SNAPSHOT.jar
     db_url: "jdbc:postgresql://host.docker.internal:5432/pwos_db"
 
   tasks:
@@ -39,9 +47,38 @@
         - { path: "{{ log_dir }}", owner: "{{ app_user }}" }
         - { path: "{{ conf_dir }}", owner: root }
 
-    - name: Copy the application jar
+    # ---- Fetch the requested release from the registry (runs on the laptop) ----
+    - name: Make sure the local artifact folder exists
+      ansible.builtin.file:
+        path: "{{ artifact_dir }}"
+        state: directory
+        mode: "0755"
+      delegate_to: localhost
+
+    - name: Extract the jar of the requested release from the registry image
+      delegate_to: localhost
+      block:
+        - name: Remove any leftover extract container
+          ansible.builtin.command: docker rm -f {{ extract_name }}
+          changed_when: false
+          failed_when: false
+
+        - name: Create a stopped container from the release image
+          ansible.builtin.command: docker create --name {{ extract_name }} {{ image }}
+          changed_when: false
+
+        - name: Copy the jar out of the container
+          ansible.builtin.command: docker cp {{ extract_name }}:{{ jar_in_image }} {{ artifact_jar }}
+          changed_when: false
+      always:
+        - name: Remove the extract container
+          ansible.builtin.command: docker rm -f {{ extract_name }}
+          changed_when: false
+          failed_when: false
+
+    - name: Copy the application jar (version {{ pwos_version }})
       ansible.builtin.copy:
-        src: "{{ playbook_dir }}/../target/{{ jar_name }}"
+        src: "{{ artifact_jar }}"
         dest: "{{ app_dir }}/app.jar"
         owner: "{{ app_user }}"
         mode: "0644"
@@ -93,6 +130,10 @@
       retries: 15
       delay: 4
       until: health.status == 200
+
+    - name: Report the deployed release
+      ansible.builtin.debug:
+        msg: "PWOS release {{ pwos_version }} is deployed and healthy (HTTP {{ health.status }})"
 
   handlers:
     - name: Restart pwos
