@@ -1,0 +1,40 @@
+
+PLAY [Configure PWOS application node] *****************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [pwos-node]
+
+TASK [Install Java 21, curl and supervisor] ************************************
+ok: [pwos-node]
+
+TASK [Create the pwos system user] *********************************************
+ok: [pwos-node]
+
+TASK [Create application, log and config folders] ******************************
+ok: [pwos-node] => (item={'path': '/opt/pwos', 'owner': 'pwos'})
+ok: [pwos-node] => (item={'path': '/var/log/pwos', 'owner': 'pwos'})
+ok: [pwos-node] => (item={'path': '/etc/pwos', 'owner': 'root'})
+
+TASK [Copy the application jar] ************************************************
+ok: [pwos-node]
+
+TASK [Write the environment file] **********************************************
+ok: [pwos-node]
+
+TASK [Write the supervisor service definition] *********************************
+ok: [pwos-node]
+
+TASK [Check whether supervisord is running] ************************************
+ok: [pwos-node]
+
+TASK [Start supervisord] *******************************************************
+skipping: [pwos-node]
+
+TASK [Apply any pending service changes] ***************************************
+
+TASK [Health check on the app port] ********************************************
+ok: [pwos-node]
+
+PLAY RECAP *********************************************************************
+pwos-node                  : ok=9    changed=0    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
+

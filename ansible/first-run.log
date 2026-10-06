@@ -1,0 +1,44 @@
+
+PLAY [Configure PWOS application node] *****************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [pwos-node]
+
+TASK [Install Java 21, curl and supervisor] ************************************
+changed: [pwos-node]
+
+TASK [Create the pwos system user] *********************************************
+changed: [pwos-node]
+
+TASK [Create application, log and config folders] ******************************
+changed: [pwos-node] => (item={'path': '/opt/pwos', 'owner': 'pwos'})
+changed: [pwos-node] => (item={'path': '/var/log/pwos', 'owner': 'pwos'})
+changed: [pwos-node] => (item={'path': '/etc/pwos', 'owner': 'root'})
+
+TASK [Copy the application jar] ************************************************
+changed: [pwos-node]
+
+TASK [Write the environment file] **********************************************
+changed: [pwos-node]
+
+TASK [Write the supervisor service definition] *********************************
+changed: [pwos-node]
+
+TASK [Check whether supervisord is running] ************************************
+ok: [pwos-node]
+
+TASK [Start supervisord] *******************************************************
+changed: [pwos-node]
+
+TASK [Apply any pending service changes] ***************************************
+
+RUNNING HANDLER [Restart pwos] *************************************************
+changed: [pwos-node]
+
+TASK [Health check on the app port] ********************************************
+FAILED - RETRYING: [pwos-node]: Health check on the app port (14 retries left).
+ok: [pwos-node]
+
+PLAY RECAP *********************************************************************
+pwos-node                  : ok=11   changed=8    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+

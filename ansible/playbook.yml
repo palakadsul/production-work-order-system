@@ -1,0 +1,99 @@
+---
+- name: Configure PWOS application node
+  hosts: pwos_nodes
+  vars:
+    app_user: pwos
+    app_dir: /opt/pwos
+    log_dir: /var/log/pwos
+    conf_dir: /etc/pwos
+    app_port: 8080
+    jar_name: pwos-0.0.1-SNAPSHOT.jar
+    db_url: "jdbc:postgresql://host.docker.internal:5432/pwos_db"
+
+  tasks:
+    - name: Install Java 21, curl and supervisor
+      ansible.builtin.apt:
+        name:
+          - openjdk-21-jre-headless
+          - curl
+          - supervisor
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Create the pwos system user
+      ansible.builtin.user:
+        name: "{{ app_user }}"
+        system: true
+        shell: /usr/sbin/nologin
+        create_home: false
+
+    - name: Create application, log and config folders
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: directory
+        owner: "{{ item.owner }}"
+        mode: "0755"
+      loop:
+        - { path: "{{ app_dir }}", owner: "{{ app_user }}" }
+        - { path: "{{ log_dir }}", owner: "{{ app_user }}" }
+        - { path: "{{ conf_dir }}", owner: root }
+
+    - name: Copy the application jar
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../target/{{ jar_name }}"
+        dest: "{{ app_dir }}/app.jar"
+        owner: "{{ app_user }}"
+        mode: "0644"
+      notify: Restart pwos
+
+    - name: Write the environment file
+      ansible.builtin.copy:
+        dest: "{{ conf_dir }}/pwos.env"
+        owner: root
+        group: "{{ app_user }}"
+        mode: "0640"
+        content: |
+          SERVER_PORT={{ app_port }}
+          SPRING_DATASOURCE_URL={{ db_url }}
+      notify: Restart pwos
+
+    - name: Write the supervisor service definition
+      ansible.builtin.copy:
+        dest: /etc/supervisor/conf.d/pwos.conf
+        mode: "0644"
+        content: |
+          [program:pwos]
+          command=/bin/bash -c 'set -a; . {{ conf_dir }}/pwos.env; exec java -jar {{ app_dir }}/app.jar'
+          user={{ app_user }}
+          directory={{ app_dir }}
+          autostart=true
+          autorestart=true
+          stdout_logfile={{ log_dir }}/pwos.log
+          redirect_stderr=true
+      notify: Restart pwos
+
+    - name: Check whether supervisord is running
+      ansible.builtin.stat:
+        path: /var/run/supervisor.sock
+      register: supervisor_socket
+
+    - name: Start supervisord
+      ansible.builtin.command: /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
+      when: not supervisor_socket.stat.exists
+
+    - name: Apply any pending service changes
+      ansible.builtin.meta: flush_handlers
+
+    - name: Health check on the app port
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:{{ app_port }}/"
+        status_code: 200
+      register: health
+      retries: 15
+      delay: 4
+      until: health.status == 200
+
+  handlers:
+    - name: Restart pwos
+      ansible.builtin.shell: supervisorctl update && supervisorctl restart pwos
