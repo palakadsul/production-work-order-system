@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Work Order - PWOS</title>
+    <link
+        rel="stylesheet"
+        th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="app">
+    <div
+        th:replace="~{fragments :: sidebar('orders')}"></div>
+
+    <div class="main">
+        <h1
+            th:text="'Edit Work Order ' + ${order.id}">Edit Work Order</h1>
+        <p
+            class="subtitle"
+            th:text="'Item: ' + ${order.item.name} + ' (' + ${order.item.sku} + ')'"></p>
+
+        <div
+            class="alert"
+            th:if="${formError}">
+            <span th:text="${formError}"></span>
+        </div>
+
+        <div class="card">
+            <form
+                th:action="@{/orders/{orderId}(orderId=${order.id})}"
+                method="post"
+                class="form-row">
+                <label class="field">Quantity
+                    <input
+                        type="number"
+                        name="quantity"
+                        th:value="${order.quantity}"
+                        min="1"
+                        required>
+                </label>
+                <label class="field">Due date
+                    <input
+                        type="date"
+                        name="dueDate"
+                        th:value="${order.dueDate}">
+                </label>
+                <button
+                    type="submit"
+                    class="btn-primary">Save</button>
+                <a
+                    th:href="@{/orders}"
+                    class="btn-edit">Back</a>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

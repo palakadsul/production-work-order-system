@@ -105,7 +105,7 @@ class PwosJourneysIT extends SeleniumBase {
     }
 
     @Test
-    void j3_createWorkOrderAndSearch() {
+    void j3_createEditAndSearchWorkOrder() {
         String name = "SelOrder-" + uniq();
         addItem(name, "SEL-" + uniq(), 100, 10);
         createOrder(name, 5, null);
@@ -117,6 +117,17 @@ class PwosJourneysIT extends SeleniumBase {
             r.findElement(By.cssSelector("span.badge"))
              .getText(), "Initial status");
 
+        r.findElement(By.cssSelector("a.btn-edit")).click();
+        WebElement qty = wait.until(ExpectedConditions
+              .visibilityOfElementLocated(By.name("quantity")));
+        qty.clear();
+        qty.sendKeys("7");
+        driver.findElement(submitButton()).click();
+        wait.until(ExpectedConditions.presenceOfElementLocated(row(name)));
+        assertEquals("7", driver.findElement(row(name))
+              .findElement(By.xpath("./td[3]")).getText(),
+              "Order quantity after edit");
+
         driver.get(BASE_URL + "/orders?status=PENDING&q=" + name);
         assertEquals(1, driver.findElements(By.xpath("//tr[td]")).size(),
             "Pending + name search should return exactly one order");
@@ -127,37 +138,45 @@ class PwosJourneysIT extends SeleniumBase {
     }
 
     @Test
-    void j4_updateStatusToInProgress() {
+    void j4_doneOrderAddsStock() {
         String name = "SelStatus-" + uniq();
         addItem(name, "SEL-" + uniq(), 100, 10);
         createOrder(name, 5, null);
-        WebElement r = driver.findElement(row(name));
-        new Select(r.findElement(
-            By.cssSelector("select[name='status']")))
-            .selectByValue("IN_PROGRESS");
-        By badge = By.xpath(
-            "//tr[td[normalize-space()='" + name + "']]"
-            + "//span[contains(@class,'badge')]");
-        wait.until(ExpectedConditions
-            .textToBe(badge, "IN_PROGRESS"));
-        assertEquals("IN_PROGRESS",
-            driver.findElement(badge).getText());
+        By badge = By.xpath("//tr[td[normalize-space()='" + name
+            + "']]//span[contains(@class,'badge')]");
+        By statusSelect = By.xpath("//tr[td[normalize-space()='" + name
+            + "']]//select[@name='status']");
+
+        new Select(driver.findElement(statusSelect)).selectByValue("IN_PROGRESS");
+        wait.until(ExpectedConditions.textToBe(badge, "IN_PROGRESS"));
+
+        new Select(driver.findElement(statusSelect)).selectByValue("DONE");
+        wait.until(ExpectedConditions.textToBe(badge, "DONE"));
+
+        driver.get(BASE_URL + "/items?q=" + name);
+        assertEquals("105", driver.findElement(row(name))
+              .findElement(By.xpath("./td[4]")).getText(),
+              "Stock after the order is done (100 + 5)");
     }
 
     @Test
-    void j5_overdueOrderShowsAlert() {
+    void j5_overdueOrderAlertAndCancel() {
         String name = "SelOverdue-" + uniq();
         addItem(name, "SEL-" + uniq(), 100, 10);
-        String yesterday =
-            LocalDate.now().minusDays(1).toString();
+        String yesterday = LocalDate.now().minusDays(1).toString();
         createOrder(name, 5, yesterday);
         WebElement alert = driver.findElement(By.xpath(
-            "//div[contains(@class,'alert')]"
-            + "[contains(.,'Overdue Orders')]"));
-        assertTrue(alert.isDisplayed(),
-            "Overdue alert visible");
-        String due = driver.findElement(row(name))
-            .findElement(By.xpath("./td[4]")).getText();
-        assertEquals(yesterday, due, "Due date in the row");
+            "//div[contains(@class,'alert')][contains(.,'Overdue Orders')]"));
+        assertTrue(alert.isDisplayed(), "Overdue alert visible");
+        assertEquals(yesterday, driver.findElement(row(name))
+              .findElement(By.xpath("./td[4]")).getText(),
+              "Due date in the order row");
+
+        driver.findElement(row(name))
+              .findElement(By.cssSelector("button.btn-cancel")).click();
+        By badge = By.xpath("//tr[td[normalize-space()='" + name
+            + "']]//span[contains(@class,'badge')]");
+        wait.until(ExpectedConditions.textToBe(badge, "CANCELLED"));
     }
+
 }
