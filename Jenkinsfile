@@ -81,6 +81,18 @@ pipeline {
                 sh 'bash scripts/deploy-container.sh pwos-live $IMAGE ${DEPLOY_PORT:-8081}'
             }
         }
+
+        stage('Provision Node (Ansible)') {
+            steps {
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                    sh '''
+                        export PATH=/opt/homebrew/bin:$PATH
+                        cd ansible
+                        ansible-playbook playbook.yml -e pwos_version=${BUILD_NUMBER}
+                    '''
+                }
+            }
+        }
     }
 
     post {

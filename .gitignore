@@ -35,3 +35,4 @@ build/
 .idea/
 .DS_Store
 ansible/artifacts/
+deploy-*.log
