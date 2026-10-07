@@ -1,11 +1,11 @@
 package com.pwos.workorder;
 
-import com.pwos.item.Item;
 import com.pwos.item.ItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -21,6 +21,9 @@ public class WorkOrderController {
 
     @Autowired
     private ItemRepository itemRepository;
+
+    @Autowired
+    private WorkOrderService workOrderService;
 
     @GetMapping
     public String listOrders(
@@ -46,7 +49,7 @@ public class WorkOrderController {
         List<WorkOrder> overdueOrders = allOrders.stream()
                 .filter(o -> o.getDueDate() != null
                         && o.getDueDate().isBefore(today)
-                        && !"DONE".equals(o.getStatus()))
+                        && WorkOrderService.isOpen(o))
                 .collect(Collectors.toList());
 
         model.addAttribute("orders", orders);
@@ -60,23 +63,82 @@ public class WorkOrderController {
     @PostMapping
     public String createOrder(@RequestParam Long itemId,
                               @RequestParam Integer quantity,
-                              @RequestParam(required = false) LocalDate dueDate) {
-        Item item = itemRepository.findById(itemId).orElseThrow();
-        WorkOrder order = new WorkOrder();
-        order.setItem(item);
-        order.setQuantity(quantity);
-        order.setDueDate(dueDate);
-        order.setStatus("PENDING");
-        workOrderRepository.save(order);
+                              @RequestParam(required = false) LocalDate dueDate,
+                              RedirectAttributes redirect) {
+        try {
+            WorkOrder o = workOrderService.create(itemId, quantity, dueDate);
+            redirect.addFlashAttribute("message",
+                    "Work order " + o.getId() + " created.");
+        } catch (IllegalArgumentException ex) {
+            redirect.addFlashAttribute("formError", ex.getMessage());
+        }
         return "redirect:/orders";
     }
 
     @PostMapping("/{orderId}/status")
     public String updateStatus(@PathVariable("orderId") Long orderId,
-                               @RequestParam String status) {
-        WorkOrder order = workOrderRepository.findById(orderId).orElseThrow();
-        order.setStatus(status);
-        workOrderRepository.save(order);
+                               @RequestParam String status,
+                               RedirectAttributes redirect) {
+        try {
+            workOrderService.changeStatus(orderId, status);
+        } catch (IllegalArgumentException ex) {
+            redirect.addFlashAttribute("formError", ex.getMessage());
+        }
+        return "redirect:/orders";
+    }
+
+    @GetMapping("/{orderId}/edit")
+    public String editForm(@PathVariable("orderId") Long orderId,
+                           Model model, RedirectAttributes redirect) {
+        WorkOrder order = workOrderRepository.findById(orderId).orElse(null);
+        if (order == null || !WorkOrderService.isOpen(order)) {
+            redirect.addFlashAttribute("formError",
+                    "Only pending or in-progress orders can be edited.");
+            return "redirect:/orders";
+        }
+        model.addAttribute("order", order);
+        return "order-edit";
+    }
+
+    @PostMapping("/{orderId}")
+    public String updateOrder(@PathVariable("orderId") Long orderId,
+                              @RequestParam Integer quantity,
+                              @RequestParam(required = false) LocalDate dueDate,
+                              RedirectAttributes redirect) {
+        try {
+            workOrderService.update(orderId, quantity, dueDate);
+            redirect.addFlashAttribute("message",
+                    "Work order " + orderId + " updated.");
+            return "redirect:/orders";
+        } catch (IllegalArgumentException ex) {
+            redirect.addFlashAttribute("formError", ex.getMessage());
+            return "redirect:/orders/" + orderId + "/edit";
+        }
+    }
+
+    @PostMapping("/{orderId}/cancel")
+    public String cancelOrder(@PathVariable("orderId") Long orderId,
+                              RedirectAttributes redirect) {
+        try {
+            workOrderService.cancel(orderId);
+            redirect.addFlashAttribute("message",
+                    "Work order " + orderId + " cancelled.");
+        } catch (IllegalArgumentException ex) {
+            redirect.addFlashAttribute("formError", ex.getMessage());
+        }
+        return "redirect:/orders";
+    }
+
+    @PostMapping("/{orderId}/delete")
+    public String deleteOrder(@PathVariable("orderId") Long orderId,
+                              RedirectAttributes redirect) {
+        try {
+            workOrderService.delete(orderId);
+            redirect.addFlashAttribute("message",
+                    "Work order " + orderId + " deleted.");
+        } catch (IllegalArgumentException ex) {
+            redirect.addFlashAttribute("formError", ex.getMessage());
+        }
         return "redirect:/orders";
     }
 }

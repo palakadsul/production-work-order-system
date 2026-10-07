@@ -49,6 +49,14 @@ public class ItemController {
     @PostMapping
     public String addItem(@ModelAttribute Item newItem,
                           RedirectAttributes redirect) {
+        String problem = validate(newItem.getName(), newItem.getSku(),
+                newItem.getQuantity(), newItem.getReorderThreshold());
+        if (problem != null) {
+            redirect.addFlashAttribute("formError", problem);
+            return "redirect:/items";
+        }
+        newItem.setName(newItem.getName().trim());
+        newItem.setSku(newItem.getSku().trim());
         try {
             itemRepository.saveAndFlush(newItem);
             redirect.addFlashAttribute("message",
@@ -85,6 +93,11 @@ public class ItemController {
             redirect.addFlashAttribute("formError", "Item not found.");
             return "redirect:/items";
         }
+        String problem = validate(name, sku, quantity, reorderThreshold);
+        if (problem != null) {
+            redirect.addFlashAttribute("formError", problem);
+            return "redirect:/items/" + id + "/edit";
+        }
         item.setName(name.trim());
         item.setSku(sku.trim());
         item.setQuantity(quantity);
@@ -99,6 +112,15 @@ public class ItemController {
         redirect.addFlashAttribute("message",
                 "Item " + item.getName() + " updated.");
         return "redirect:/items";
+    }
+
+    private String validate(String name, String sku,
+                            Integer quantity, Integer threshold) {
+        if (name == null || name.isBlank()) return "Name is required.";
+        if (sku == null || sku.isBlank()) return "SKU is required.";
+        if (quantity == null || quantity < 0) return "Quantity must be 0 or more.";
+        if (threshold == null || threshold < 0) return "Reorder threshold must be 0 or more.";
+        return null;
     }
 
     @PostMapping("/{id}/delete")

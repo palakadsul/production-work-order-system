@@ -38,7 +38,8 @@ public class HomeController {
         List<WorkOrder> overdueOrders = orders.stream()
                 .filter(o -> o.getDueDate() != null
                         && o.getDueDate().isBefore(today)
-                        && !"DONE".equals(o.getStatus()))
+                        && !"DONE".equals(o.getStatus())
+                        && !"CANCELLED".equals(o.getStatus()))
                 .toList();
 
         long pending = orders.stream()

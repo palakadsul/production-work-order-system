@@ -32,10 +32,22 @@
         </div>
 
         <div
+            class="notice"
+            th:if="${message}">
+            <span th:text="${message}"></span>
+        </div>
+
+        <div
+            class="alert"
+            th:if="${formError}">
+            <span th:text="${formError}"></span>
+        </div>
+
+        <div
             class="alert"
             th:if="${!overdueOrders.isEmpty()}">
             <strong>⚠ Overdue Orders:</strong>
-            <span th:text="${overdueOrders.size()} + ' order(s) past due date and not yet Done.'"></span>
+            <span th:text="${overdueOrders.size()} + ' order(s) past due date and still open.'"></span>
         </div>
 
         <div class="card">
@@ -61,6 +73,9 @@
                     <option
                         value="DONE"
                         th:selected="${statusFilter == 'DONE'}">Done</option>
+                    <option
+                        value="CANCELLED"
+                        th:selected="${statusFilter == 'CANCELLED'}">Cancelled</option>
                 </select>
                 <button
                     type="submit"
@@ -74,9 +89,10 @@
                 class="search-info"
                 th:if="${!q.isEmpty() or !statusFilter.isEmpty()}"
                 th:text="${orders.size()} + ' order(s) match the current filter'"></p>
+
             <table>
                 <tr>
-                    <th>ID</th><th>Item</th><th>Quantity</th><th>Due Date</th><th>Status</th><th>Update</th>
+                    <th>ID</th><th>Item</th><th>Quantity</th><th>Due Date</th><th>Status</th><th>Update</th><th></th>
                 </tr>
                 <tr th:each="order : ${orders}">
                     <td th:text="${order.id}"></td>
@@ -91,8 +107,10 @@
                     </td>
                     <td>
                         <form
+                            th:if="${order.status != 'CANCELLED'}"
                             th:action="@{/orders/{orderId}/status(orderId=${order.id})}"
-                            method="post">
+                            method="post"
+                            class="inline-form">
                             <select
                                 name="status"
                                 onchange="this.form.submit()">
@@ -107,6 +125,36 @@
                                     th:selected="${order.status == 'DONE'}">Done</option>
                             </select>
                         </form>
+                        <span
+                            th:if="${order.status == 'CANCELLED'}"
+                            class="search-info">-</span>
+                    </td>
+                    <td>
+                        <div class="row-actions">
+                            <a
+                                th:if="${order.status == 'PENDING' or order.status == 'IN_PROGRESS'}"
+                                th:href="@{/orders/{orderId}/edit(orderId=${order.id})}"
+                                class="btn-edit">Edit</a>
+                            <form
+                                th:if="${order.status == 'PENDING' or order.status == 'IN_PROGRESS'}"
+                                th:action="@{/orders/{orderId}/cancel(orderId=${order.id})}"
+                                method="post"
+                                class="inline-form">
+                                <button
+                                    type="submit"
+                                    class="btn-cancel">Cancel</button>
+                            </form>
+                            <form
+                                th:if="${order.status != 'DONE'}"
+                                th:action="@{/orders/{orderId}/delete(orderId=${order.id})}"
+                                method="post"
+                                class="inline-form">
+                                <button
+                                    type="submit"
+                                    class="btn-delete"
+                                    onclick="return confirm('Delete this order?')">Delete</button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
             </table>
@@ -125,10 +173,6 @@
                     name="itemId"
                     required>
                     <option
-                        value=""
-                        disabled
-                        selected>Select item</option>
-                    <option
                         th:each="item : ${items}"
                         th:value="${item.id}"
                         th:text="${item.name}"></option>
@@ -146,6 +190,7 @@
                     type="submit"
                     class="btn-primary">Create Order</button>
             </form>
+            <p class="search-info">Marking an order Done adds its quantity to the item's stock. Reopening it takes the quantity back.</p>
         </div>
     </div>
 </div>
