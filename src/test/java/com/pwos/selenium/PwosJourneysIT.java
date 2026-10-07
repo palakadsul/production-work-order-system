@@ -67,13 +67,30 @@ class PwosJourneysIT extends SeleniumBase {
     }
 
     @Test
-    void j1_addItemAppearsInCatalogue() {
+    void j1_addSearchAndEditItem() {
         String name = "SelItem-" + uniq();
         String sku = "SEL-" + uniq();
         addItem(name, sku, 100, 10);
         String shown = driver.findElement(row(name))
             .findElement(By.xpath("./td[3]")).getText();
         assertEquals(sku, shown, "SKU in catalogue row");
+
+        driver.get(BASE_URL + "/items?q=" + name);
+        assertEquals(1, driver.findElements(By.xpath("//tr[td]")).size(),
+            "Search should return exactly one item");
+
+        driver.findElement(row(name))
+              .findElement(By.cssSelector("a.btn-edit")).click();
+        WebElement qty = wait.until(ExpectedConditions
+              .visibilityOfElementLocated(By.name("quantity")));
+        qty.clear();
+        qty.sendKeys("42");
+        driver.findElement(submitButton()).click();
+        wait.until(ExpectedConditions
+              .presenceOfElementLocated(row(name)));
+        assertEquals("42", driver.findElement(row(name))
+              .findElement(By.xpath("./td[4]")).getText(),
+              "Quantity after edit");
     }
 
     @Test
@@ -88,7 +105,7 @@ class PwosJourneysIT extends SeleniumBase {
     }
 
     @Test
-    void j3_createWorkOrderShowsPending() {
+    void j3_createWorkOrderAndSearch() {
         String name = "SelOrder-" + uniq();
         addItem(name, "SEL-" + uniq(), 100, 10);
         createOrder(name, 5, null);
@@ -99,6 +116,14 @@ class PwosJourneysIT extends SeleniumBase {
         assertEquals("PENDING",
             r.findElement(By.cssSelector("span.badge"))
              .getText(), "Initial status");
+
+        driver.get(BASE_URL + "/orders?status=PENDING&q=" + name);
+        assertEquals(1, driver.findElements(By.xpath("//tr[td]")).size(),
+            "Pending + name search should return exactly one order");
+
+        driver.get(BASE_URL + "/orders?status=DONE&q=" + name);
+        assertEquals(0, driver.findElements(By.xpath("//tr[td]")).size(),
+            "Done + name search should return no orders");
     }
 
     @Test

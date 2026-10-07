@@ -38,27 +38,42 @@
             <span th:text="${overdueOrders.size()} + ' order(s) past due date and not yet Done.'"></span>
         </div>
 
-        <form
-            th:action="@{/orders}"
-            method="get"
-            style="margin-bottom:18px;">
-            <select
-                name="status"
-                onchange="this.form.submit()">
-                <option value="">All statuses</option>
-                <option
-                    value="PENDING"
-                    th:selected="${statusFilter == 'PENDING'}">Pending</option>
-                <option
-                    value="IN_PROGRESS"
-                    th:selected="${statusFilter == 'IN_PROGRESS'}">In Progress</option>
-                <option
-                    value="DONE"
-                    th:selected="${statusFilter == 'DONE'}">Done</option>
-            </select>
-        </form>
-
         <div class="card">
+            <form
+                th:action="@{/orders}"
+                method="get"
+                class="search-bar">
+                <input
+                    type="text"
+                    name="q"
+                    th:value="${q}"
+                    placeholder="Search by item name or SKU">
+                <select
+                    name="status"
+                    onchange="this.form.submit()">
+                    <option value="">All statuses</option>
+                    <option
+                        value="PENDING"
+                        th:selected="${statusFilter == 'PENDING'}">Pending</option>
+                    <option
+                        value="IN_PROGRESS"
+                        th:selected="${statusFilter == 'IN_PROGRESS'}">In Progress</option>
+                    <option
+                        value="DONE"
+                        th:selected="${statusFilter == 'DONE'}">Done</option>
+                </select>
+                <button
+                    type="submit"
+                    class="btn-primary">Search</button>
+                <a
+                    th:if="${!q.isEmpty() or !statusFilter.isEmpty()}"
+                    th:href="@{/orders}"
+                    class="btn-edit">Clear</a>
+            </form>
+            <p
+                class="search-info"
+                th:if="${!q.isEmpty() or !statusFilter.isEmpty()}"
+                th:text="${orders.size()} + ' order(s) match the current filter'"></p>
             <table>
                 <tr>
                     <th>ID</th><th>Item</th><th>Quantity</th><th>Due Date</th><th>Status</th><th>Update</th>
@@ -95,6 +110,9 @@
                     </td>
                 </tr>
             </table>
+            <p
+                class="search-info"
+                th:if="${orders.isEmpty()}">No orders to show.</p>
         </div>
 
         <div class="card">
@@ -119,6 +137,7 @@
                     type="number"
                     name="quantity"
                     placeholder="Quantity"
+                    min="1"
                     required>
                 <input
                     type="date"
