@@ -21,7 +21,7 @@
                 <div class="label">Total items</div>
                 <div
                     class="value"
-                    th:text="${items.size()}">0</div>
+                    th:text="${totalItems}">0</div>
             </div>
             <div class="stat red">
                 <div class="label">Low stock</div>
@@ -29,6 +29,18 @@
                     class="value"
                     th:text="${lowStockItems.size()}">0</div>
             </div>
+        </div>
+
+        <div
+            class="notice"
+            th:if="${message}">
+            <span th:text="${message}"></span>
+        </div>
+
+        <div
+            class="alert"
+            th:if="${formError}">
+            <span th:text="${formError}"></span>
         </div>
 
         <div
@@ -48,6 +60,28 @@
         </div>
 
         <div class="card">
+            <form
+                th:action="@{/items}"
+                method="get"
+                class="search-bar">
+                <input
+                    type="text"
+                    name="q"
+                    th:value="${q}"
+                    placeholder="Search by name or SKU">
+                <button
+                    type="submit"
+                    class="btn-primary">Search</button>
+                <a
+                    th:if="${!q.isEmpty()}"
+                    th:href="@{/items}"
+                    class="btn-edit">Clear</a>
+            </form>
+            <p
+                class="search-info"
+                th:if="${!q.isEmpty()}"
+                th:text="${items.size()} + ' result(s) for: ' + ${q}"></p>
+
             <table>
                 <tr>
                     <th>ID</th><th>Name</th><th>SKU</th><th>Quantity</th><th>Reorder Threshold</th><th></th>
@@ -63,16 +97,24 @@
                     </td>
                     <td th:text="${item.reorderThreshold}"></td>
                     <td>
-                        <form
-                            th:action="@{/items/{id}/delete(id=${item.id})}"
-                            method="post">
-                            <button
-                                type="submit"
-                                class="btn-delete">Delete</button>
-                        </form>
+                        <div class="row-actions">
+                            <a
+                                th:href="@{/items/{id}/edit(id=${item.id})}"
+                                class="btn-edit">Edit</a>
+                            <form
+                                th:action="@{/items/{id}/delete(id=${item.id})}"
+                                method="post">
+                                <button
+                                    type="submit"
+                                    class="btn-delete">Delete</button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
             </table>
+            <p
+                class="search-info"
+                th:if="${items.isEmpty()}">No items to show.</p>
         </div>
 
         <div class="card">
@@ -95,11 +137,13 @@
                     type="number"
                     name="quantity"
                     placeholder="Quantity"
+                    min="0"
                     required>
                 <input
                     type="number"
                     name="reorderThreshold"
                     placeholder="Reorder Threshold"
+                    min="0"
                     required>
                 <button
                     type="submit"

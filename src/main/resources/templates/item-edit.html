@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Item - PWOS</title>
+    <link
+        rel="stylesheet"
+        th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="app">
+    <div
+        th:replace="~{fragments :: sidebar('items')}"></div>
+
+    <div class="main">
+        <h1>Edit Item</h1>
+        <p class="subtitle">Update the details and stock level of this item</p>
+
+        <div
+            class="alert"
+            th:if="${formError}">
+            <span th:text="${formError}"></span>
+        </div>
+
+        <div class="card">
+            <form
+                th:action="@{/items/{id}(id=${item.id})}"
+                method="post"
+                class="form-row">
+                <label class="field">Name
+                    <input
+                        type="text"
+                        name="name"
+                        th:value="${item.name}"
+                        required>
+                </label>
+                <label class="field">SKU
+                    <input
+                        type="text"
+                        name="sku"
+                        th:value="${item.sku}"
+                        required>
+                </label>
+                <label class="field">Quantity
+                    <input
+                        type="number"
+                        name="quantity"
+                        th:value="${item.quantity}"
+                        min="0"
+                        required>
+                </label>
+                <label class="field">Reorder threshold
+                    <input
+                        type="number"
+                        name="reorderThreshold"
+                        th:value="${item.reorderThreshold}"
+                        min="0"
+                        required>
+                </label>
+                <button
+                    type="submit"
+                    class="btn-primary">Save</button>
+                <a
+                    th:href="@{/items}"
+                    class="btn-edit">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

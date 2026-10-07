@@ -163,3 +163,14 @@ select:focus, input:focus { outline: none; border-color: #4f6bed; }
 .btn-link { text-decoration: none; display: inline-block; }
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
 .empty { color: #8b8fa3; font-size: 14px; margin: 14px 0 0; }
+/* --- Week 15: search, edit and messages --- */
+.search-bar { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+.search-bar input { flex: 1; padding: 10px 12px; border: 1px solid #d6dbe8; border-radius: 10px; font-size: 14px; }
+.search-info { color: #6b7280; font-size: 13px; margin: 0 0 10px; }
+.row-actions { display: flex; gap: 8px; align-items: center; justify-content: flex-end; }
+.row-actions form { margin: 0; }
+.btn-edit { display: inline-block; padding: 7px 14px; border: 1px solid #4f63e4; border-radius: 8px; color: #4f63e4; background: #fff; text-decoration: none; font-size: 14px; }
+.btn-edit:hover { background: #eef1fd; }
+.notice { background: #e8f6ec; border: 1px solid #b9e2c5; color: #1e7a3a; border-radius: 12px; padding: 14px 18px; margin-bottom: 16px; }
+.field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #6b7280; }
+.search-bar select { padding: 10px 12px; border: 1px solid #d6dbe8; border-radius: 10px; font-size: 14px; background: #fff; }
