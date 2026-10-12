@@ -188,3 +188,10 @@ select:focus, input:focus { outline: none; border-color: #4f6bed; }
 .user-name { font-weight: 600; }
 .user-role { font-size: 12px; opacity: 0.75; margin-bottom: 8px; letter-spacing: 0.04em; }
 .btn-logout { padding: 6px 12px; border-radius: 8px; border: 1px solid currentColor; background: transparent; color: inherit; cursor: pointer; font-size: 13px; }
+
+/* --- Phase 3: history action badges --- */
+.badge.act-CREATE { background: #e8f6ec; color: #1e7a3a; }
+.badge.act-UPDATE { background: #eef1fd; color: #3446c4; }
+.badge.act-STATUS { background: #fff6e5; color: #a8650a; }
+.badge.act-CANCEL { background: #e5e7eb; color: #4b5563; }
+.badge.act-DELETE { background: #fdecea; color: #b42318; }

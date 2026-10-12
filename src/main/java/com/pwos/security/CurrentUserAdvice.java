@@ -34,5 +34,6 @@ public class CurrentUserAdvice {
         model.addAttribute("isAdmin", admin);
         model.addAttribute("canManageItems", admin || roles.contains("ROLE_CLERK"));
         model.addAttribute("canManageOrders", admin || roles.contains("ROLE_SUPERVISOR"));
+        model.addAttribute("canViewHistory", admin || roles.contains("ROLE_VIEWER"));
     }
 }

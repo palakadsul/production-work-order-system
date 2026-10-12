@@ -1,5 +1,6 @@
 package com.pwos.item;
 
+import com.pwos.audit.AuditService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
@@ -7,8 +8,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Controller
@@ -17,6 +20,9 @@ public class ItemController {
 
     @Autowired
     private ItemRepository itemRepository;
+
+    @Autowired
+    private AuditService audit;
 
     @GetMapping
     public String listItems(
@@ -59,13 +65,18 @@ public class ItemController {
         newItem.setSku(newItem.getSku().trim());
         try {
             itemRepository.saveAndFlush(newItem);
-            redirect.addFlashAttribute("message",
-                    "Item " + newItem.getName() + " added.");
         } catch (DataIntegrityViolationException ex) {
             redirect.addFlashAttribute("formError",
                     "SKU " + newItem.getSku()
                     + " already exists. Use a different SKU.");
+            return "redirect:/items";
         }
+        audit.record("CREATE", "ITEM", newItem.getId(),
+                "Added " + newItem.getName() + " (" + newItem.getSku()
+                + "), quantity " + newItem.getQuantity()
+                + ", reorder threshold " + newItem.getReorderThreshold());
+        redirect.addFlashAttribute("message",
+                "Item " + newItem.getName() + " added.");
         return "redirect:/items";
     }
 
@@ -98,6 +109,12 @@ public class ItemController {
             redirect.addFlashAttribute("formError", problem);
             return "redirect:/items/" + id + "/edit";
         }
+        List<String> changes = new ArrayList<>();
+        change(changes, "name", item.getName(), name.trim());
+        change(changes, "SKU", item.getSku(), sku.trim());
+        change(changes, "quantity", item.getQuantity(), quantity);
+        change(changes, "reorder threshold", item.getReorderThreshold(), reorderThreshold);
+
         item.setName(name.trim());
         item.setSku(sku.trim());
         item.setQuantity(quantity);
@@ -109,9 +126,18 @@ public class ItemController {
                     "SKU " + sku + " is already used by another item.");
             return "redirect:/items/" + id + "/edit";
         }
+        audit.record("UPDATE", "ITEM", id, item.getName() + ": "
+                + (changes.isEmpty() ? "no changes" : String.join("; ", changes)));
         redirect.addFlashAttribute("message",
                 "Item " + item.getName() + " updated.");
         return "redirect:/items";
+    }
+
+    private static void change(List<String> changes, String label,
+                               Object before, Object after) {
+        if (!Objects.equals(before, after)) {
+            changes.add(label + " " + before + " -> " + after);
+        }
     }
 
     private String validate(String name, String sku,
@@ -126,13 +152,18 @@ public class ItemController {
     @PostMapping("/{id}/delete")
     public String deleteItem(@PathVariable Long id,
                              RedirectAttributes redirect) {
+        String name = itemRepository.findById(id)
+                .map(Item::getName).orElse("item " + id);
         try {
             itemRepository.deleteById(id);
         } catch (DataIntegrityViolationException ex) {
             redirect.addFlashAttribute("deleteError",
                     "Cannot delete this item - it has existing "
                     + "work orders linked to it.");
+            return "redirect:/items";
         }
+        audit.record("DELETE", "ITEM", id, "Deleted " + name);
+        redirect.addFlashAttribute("message", "Item " + name + " deleted.");
         return "redirect:/items";
     }
 }

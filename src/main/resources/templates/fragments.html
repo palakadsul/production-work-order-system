@@ -30,6 +30,13 @@
             th:href="@{/orders}">
             <span class="nav-icon">📋</span>Work Orders
         </a>
+        <a
+            class="nav-item"
+            th:if="${canViewHistory}"
+            th:classappend="${active == 'history'} ? 'active'"
+            th:href="@{/history}">
+            <span class="nav-icon">🕘</span>History
+        </a>
     </div>
     <div
         class="user-panel"

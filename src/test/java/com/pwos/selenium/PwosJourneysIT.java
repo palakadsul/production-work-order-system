@@ -167,6 +167,12 @@ class PwosJourneysIT extends SeleniumBase {
         assertEquals("105", driver.findElement(row(name))
               .findElement(By.xpath("./td[4]")).getText(),
               "Stock after the order is done (100 + 5)");
+
+        driver.get(BASE_URL + "/history");
+        assertEquals(1, driver.findElements(By.xpath(
+            "//tr[td[normalize-space()='admin'] and td[contains(., '" + name
+            + "') and contains(., 'IN_PROGRESS -> DONE; stock 100 -> 105')]]")).size(),
+            "History records who finished the order and the stock change");
     }
 
     @Test
