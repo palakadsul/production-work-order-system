@@ -107,7 +107,7 @@
                     </td>
                     <td>
                         <form
-                            th:if="${order.status != 'CANCELLED'}"
+                            th:if="${canManageOrders and order.status != 'CANCELLED'}"
                             th:action="@{/orders/{orderId}/status(orderId=${order.id})}"
                             method="post"
                             class="inline-form">
@@ -132,11 +132,11 @@
                     <td>
                         <div class="row-actions">
                             <a
-                                th:if="${order.status == 'PENDING' or order.status == 'IN_PROGRESS'}"
+                                th:if="${canManageOrders and (order.status == 'PENDING' or order.status == 'IN_PROGRESS')}"
                                 th:href="@{/orders/{orderId}/edit(orderId=${order.id})}"
                                 class="btn-edit">Edit</a>
                             <form
-                                th:if="${order.status == 'PENDING' or order.status == 'IN_PROGRESS'}"
+                                th:if="${canManageOrders and (order.status == 'PENDING' or order.status == 'IN_PROGRESS')}"
                                 th:action="@{/orders/{orderId}/cancel(orderId=${order.id})}"
                                 method="post"
                                 class="inline-form">
@@ -145,7 +145,7 @@
                                     class="btn-cancel">Cancel</button>
                             </form>
                             <form
-                                th:if="${order.status != 'DONE'}"
+                                th:if="${isAdmin and order.status != 'DONE'}"
                                 th:action="@{/orders/{orderId}/delete(orderId=${order.id})}"
                                 method="post"
                                 class="inline-form">
@@ -163,7 +163,9 @@
                 th:if="${orders.isEmpty()}">No orders to show.</p>
         </div>
 
-        <div class="card">
+        <div
+            class="card"
+            th:if="${canManageOrders}">
             <h3>Create Work Order</h3>
             <form
                 th:action="@{/orders}"

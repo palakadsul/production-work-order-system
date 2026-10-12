@@ -31,6 +31,23 @@
             <span class="nav-icon">📋</span>Work Orders
         </a>
     </div>
+    <div
+        class="user-panel"
+        th:if="${currentUser != null}">
+        <div
+            class="user-name"
+            th:text="${currentUser}">user</div>
+        <div
+            class="user-role"
+            th:text="${currentRole}">ROLE</div>
+        <form
+            th:action="@{/logout}"
+            method="post">
+            <button
+                type="submit"
+                class="btn-logout">Log out</button>
+        </form>
+    </div>
 </div>
 </body>
 </html>
