@@ -17,6 +17,8 @@
     conf_dir: /etc/pwos
     app_port: 8080
     db_url: "jdbc:postgresql://host.docker.internal:5432/pwos_db"
+    # Secrets file on the control machine (never committed).
+    secrets_file: "{{ lookup('env', 'PWOS_ENV_FILE') | default(lookup('env', 'HOME') + '/.pwos/pwos.env', true) }}"
 
   tasks:
     - name: Install Java 21, curl and supervisor
@@ -93,6 +95,8 @@
         content: |
           SERVER_PORT={{ app_port }}
           SPRING_DATASOURCE_URL={{ db_url }}
+          {{ lookup('file', secrets_file) }}
+      no_log: true
       notify: Restart pwos
 
     - name: Write the supervisor service definition

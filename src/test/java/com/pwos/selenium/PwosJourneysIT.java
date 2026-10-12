@@ -103,7 +103,7 @@ class PwosJourneysIT extends SeleniumBase {
             "Low-stock alert names the item");
 
         logout();
-        login("viewer", System.getProperty("pwos.viewer.password", "viewer123"));
+        login("viewer", secret("pwos.viewer.password", "PWOS_VIEWER_PASSWORD"));
         driver.get(BASE_URL + "/items?q=" + name);
         assertEquals(1, driver.findElements(row(name)).size(),
             "Viewer can see the item");

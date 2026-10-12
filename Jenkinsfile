@@ -10,6 +10,7 @@ pipeline {
         TEST_PORT = '8090'
         REGISTRY  = 'localhost:5001'
         IMAGE     = "localhost:5001/pwos:${BUILD_NUMBER}"
+        PWOS_ENV_FILE = credentials('pwos-env')
     }
 
     stages {
@@ -52,6 +53,9 @@ pipeline {
         stage('Selenium Tests') {
             steps {
                 sh '''
+                    set +x
+                    . scripts/load-env.sh
+                    set -x
                     mvn -B test -Dtest=PwosJourneysIT \
                       -Dbase.url=http://localhost:$TEST_PORT \
                       -Dheadless=true
@@ -76,6 +80,12 @@ pipeline {
             }
         }
 
+        stage('Backup DB') {
+            steps {
+                sh 'bash scripts/backup-db.sh'
+            }
+        }
+
         stage('Deploy') {
             steps {
                 sh 'bash scripts/deploy-container.sh pwos-live $IMAGE ${DEPLOY_PORT:-8081}'
@@ -88,7 +98,7 @@ pipeline {
                     sh '''
                         export PATH=/opt/homebrew/bin:$PATH
                         cd ansible
-                        ansible-playbook playbook.yml -e pwos_version=${BUILD_NUMBER}
+                        ansible-playbook playbook.yml -e pwos_version=${BUILD_NUMBER} -e secrets_file="$PWOS_ENV_FILE"
                     '''
                 }
             }

@@ -8,7 +8,10 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-/** Creates the four demo users the first time the app starts. */
+/**
+ * Makes the four users match the passwords in the environment:
+ * creates missing users and updates a password when it was changed.
+ */
 @Component
 public class UserSeeder implements CommandLineRunner {
 
@@ -36,21 +39,28 @@ public class UserSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        create("admin", adminPassword, "ADMIN");
-        create("supervisor", supervisorPassword, "SUPERVISOR");
-        create("clerk", clerkPassword, "CLERK");
-        create("viewer", viewerPassword, "VIEWER");
+        sync("admin", adminPassword, "ADMIN");
+        sync("supervisor", supervisorPassword, "SUPERVISOR");
+        sync("clerk", clerkPassword, "CLERK");
+        sync("viewer", viewerPassword, "VIEWER");
     }
 
-    private void create(String username, String password, String role) {
-        if (users.findByUsername(username).isPresent()) {
-            return;
+    private void sync(String username, String password, String role) {
+        if (password == null || password.isBlank()) {
+            throw new IllegalStateException("Password for user " + username + " is not set");
         }
-        try {
-            users.save(new AppUser(username, encoder.encode(password), role));
-            log.info("Created user {} with role {}", username, role);
-        } catch (DataIntegrityViolationException ex) {
-            log.info("User {} was created by another instance", username);
+        AppUser existing = users.findByUsername(username).orElse(null);
+        if (existing == null) {
+            try {
+                users.save(new AppUser(username, encoder.encode(password), role));
+                log.info("Created user {} with role {}", username, role);
+            } catch (DataIntegrityViolationException ex) {
+                log.info("User {} was created by another instance", username);
+            }
+        } else if (!encoder.matches(password, existing.getPasswordHash())) {
+            existing.setPasswordHash(encoder.encode(password));
+            users.save(existing);
+            log.info("Updated password for user {}", username);
         }
     }
 }
