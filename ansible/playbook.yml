@@ -110,14 +110,24 @@
           redirect_stderr=true
       notify: Restart pwos
 
-    - name: Check whether supervisord is running
-      ansible.builtin.stat:
-        path: /var/run/supervisor.sock
-      register: supervisor_socket
+    - name: Check whether supervisord is running (ask it, not its socket file)
+      ansible.builtin.command: supervisorctl pid
+      register: supervisor_check
+      changed_when: false
+      failed_when: false
+
+    - name: Remove stale supervisor files left by a restart
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /var/run/supervisor.sock
+        - /var/run/supervisord.pid
+      when: supervisor_check.stdout is not match('^[0-9]+$')
 
     - name: Start supervisord
       ansible.builtin.command: /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
-      when: not supervisor_socket.stat.exists
+      when: supervisor_check.stdout is not match('^[0-9]+$')
 
     - name: Apply any pending service changes
       ansible.builtin.meta: flush_handlers
