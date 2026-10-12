@@ -31,6 +31,7 @@ public class SecurityConfig {
                         "/orders/*/cancel").hasAnyRole("ADMIN", "SUPERVISOR")
                 .requestMatchers(HttpMethod.GET,
                         "/orders/*/edit").hasAnyRole("ADMIN", "SUPERVISOR")
+                .requestMatchers("/history").hasAnyRole("ADMIN", "VIEWER")
                 .anyRequest().authenticated())
             .formLogin(form -> form
                 .loginPage("/login")

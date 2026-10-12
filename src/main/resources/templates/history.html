@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>History - PWOS</title>
+    <link
+        rel="stylesheet"
+        th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="app">
+    <div
+        th:replace="~{fragments :: sidebar('history')}"></div>
+
+    <div class="main">
+        <h1>History</h1>
+        <p class="subtitle">Who changed what, and when (latest 200 changes)</p>
+
+        <div class="card">
+            <table>
+                <tr>
+                    <th>When</th><th>User</th><th>Action</th><th>What</th><th>Details</th>
+                </tr>
+                <tr th:each="e : ${entries}">
+                    <td th:text="${#temporals.format(e.eventTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                    <td th:text="${e.username}"></td>
+                    <td>
+                        <span
+                            class="badge"
+                            th:classappend="'act-' + ${e.action}"
+                            th:text="${e.action}"></span>
+                    </td>
+                    <td th:text="${e.entityType} + ' #' + ${e.entityId}"></td>
+                    <td th:text="${e.details}"></td>
+                </tr>
+            </table>
+            <p
+                class="search-info"
+                th:if="${entries.isEmpty()}">No changes recorded yet.</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

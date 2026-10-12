@@ -1,16 +1,20 @@
 package com.pwos.workorder;
 
+import com.pwos.audit.AuditService;
 import com.pwos.item.Item;
 import com.pwos.item.ItemRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
- * Business rules for work orders. Each method runs in one
- * transaction: the order and the item stock are saved together
+ * Business rules for work orders. Each method runs in one transaction:
+ * the order, the item stock and the history line are saved together
  * or not at all.
  */
 @Service
@@ -20,10 +24,13 @@ public class WorkOrderService {
 
     private final WorkOrderRepository orders;
     private final ItemRepository items;
+    private final AuditService audit;
 
-    public WorkOrderService(WorkOrderRepository orders, ItemRepository items) {
+    public WorkOrderService(WorkOrderRepository orders, ItemRepository items,
+                            AuditService audit) {
         this.orders = orders;
         this.items = items;
+        this.audit = audit;
     }
 
     static boolean isOpen(WorkOrder o) {
@@ -33,6 +40,10 @@ public class WorkOrderService {
     private WorkOrder find(Long id) {
         return orders.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("Order " + id + " not found."));
+    }
+
+    private static String describe(WorkOrder o) {
+        return o.getQuantity() + " x " + o.getItem().getName();
     }
 
     @Transactional
@@ -47,7 +58,10 @@ public class WorkOrderService {
         order.setQuantity(quantity);
         order.setDueDate(dueDate);
         order.setStatus("PENDING");
-        return orders.save(order);
+        WorkOrder saved = orders.save(order);
+        audit.record("CREATE", "ORDER", saved.getId(), "Order for " + describe(saved)
+                + (dueDate != null ? ", due " + dueDate : ""));
+        return saved;
     }
 
     /** Done adds the produced quantity to stock; reopening takes it back. */
@@ -65,6 +79,7 @@ public class WorkOrderService {
             return;
         }
         Item item = order.getItem();
+        int stockBefore = item.getQuantity();
         if ("DONE".equals(newStatus)) {
             item.setQuantity(item.getQuantity() + order.getQuantity());
         } else if ("DONE".equals(old)) {
@@ -78,6 +93,11 @@ public class WorkOrderService {
         order.setStatus(newStatus);
         items.save(item);
         orders.save(order);
+
+        String stockNote = stockBefore == item.getQuantity() ? ""
+                : "; stock " + stockBefore + " -> " + item.getQuantity();
+        audit.record("STATUS", "ORDER", orderId, describe(order) + ": "
+                + old + " -> " + newStatus + stockNote);
     }
 
     @Transactional
@@ -90,9 +110,18 @@ public class WorkOrderService {
         if (quantity == null || quantity < 1) {
             throw new IllegalArgumentException("Quantity must be at least 1.");
         }
+        List<String> changes = new ArrayList<>();
+        if (!Objects.equals(order.getQuantity(), quantity)) {
+            changes.add("quantity " + order.getQuantity() + " -> " + quantity);
+        }
+        if (!Objects.equals(order.getDueDate(), dueDate)) {
+            changes.add("due date " + order.getDueDate() + " -> " + dueDate);
+        }
         order.setQuantity(quantity);
         order.setDueDate(dueDate);
         orders.save(order);
+        audit.record("UPDATE", "ORDER", orderId, order.getItem().getName() + ": "
+                + (changes.isEmpty() ? "no changes" : String.join("; ", changes)));
     }
 
     @Transactional
@@ -102,8 +131,11 @@ public class WorkOrderService {
             throw new IllegalArgumentException(
                     "Only pending or in-progress orders can be cancelled.");
         }
+        String old = order.getStatus();
         order.setStatus("CANCELLED");
         orders.save(order);
+        audit.record("CANCEL", "ORDER", orderId, describe(order) + ": "
+                + old + " -> CANCELLED");
     }
 
     @Transactional
@@ -113,6 +145,8 @@ public class WorkOrderService {
             throw new IllegalArgumentException(
                     "A finished order cannot be deleted. Reopen it first.");
         }
+        audit.record("DELETE", "ORDER", orderId, "Deleted order for " + describe(order)
+                + " (" + order.getStatus() + ")");
         orders.delete(order);
     }
 }
