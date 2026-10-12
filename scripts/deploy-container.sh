@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
 # Usage: deploy-container.sh <name> <image> <port>
-# Replaces container <name> with a fresh one from
-# <image> on host <port>, then waits until it answers.
+# Replaces container <name> with a fresh one from <image> on host <port>,
+# passes the secrets file to it, then waits until it answers.
 NAME="$1"
 IMAGE="$2"
 PORT="$3"
 DB_URL="${DB_URL:-jdbc:postgresql://host.docker.internal:5432/pwos_db}"
+PWOS_ENV_FILE="${PWOS_ENV_FILE:-$HOME/.pwos/pwos.env}"
+if [ ! -r "$PWOS_ENV_FILE" ]; then
+  echo "ERROR: secrets file not found: $PWOS_ENV_FILE"
+  exit 1
+fi
 
 docker rm -f "$NAME" > /dev/null 2>&1 || true
 
@@ -20,11 +25,12 @@ fi
 echo "Starting $NAME from $IMAGE on port $PORT"
 docker run -d --name "$NAME" --restart unless-stopped \
   -p "$PORT:8080" \
+  --env-file "$PWOS_ENV_FILE" \
   -e SPRING_DATASOURCE_URL="$DB_URL" \
   "$IMAGE" > /dev/null
 
 for i in $(seq 1 30); do
-  if curl -sf "http://localhost:$PORT/" > /dev/null; then
+  if curl -sf "http://localhost:$PORT/login" > /dev/null; then
     echo "Container $NAME is healthy on port $PORT"
     exit 0
   fi

@@ -19,8 +19,6 @@ public abstract class SeleniumBase {
             System.getProperty("base.url", "http://localhost:8080");
     protected static final String USER =
             System.getProperty("pwos.user", "admin");
-    protected static final String PASSWORD =
-            System.getProperty("pwos.password", "admin123");
 
     protected WebDriver driver;
     protected WebDriverWait wait;
@@ -34,7 +32,17 @@ public abstract class SeleniumBase {
         options.addArguments("--window-size=1400,1000");
         driver = new ChromeDriver(options);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        login(USER, PASSWORD);
+        login(USER, secret("pwos.password", "PWOS_ADMIN_PASSWORD"));
+    }
+
+    /** Reads a secret from -Dproperty or the environment; never from the code. */
+    protected static String secret(String property, String envVar) {
+        String value = System.getProperty(property, System.getenv(envVar));
+        if (value == null || value.isBlank()) {
+            throw new IllegalStateException(
+                    "Set -D" + property + " or the " + envVar + " environment variable");
+        }
+        return value;
     }
 
     /** Signs in through the login page and waits for the user panel. */

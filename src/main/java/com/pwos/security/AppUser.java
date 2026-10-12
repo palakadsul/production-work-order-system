@@ -32,4 +32,6 @@ public class AppUser {
     public String getUsername() { return username; }
     public String getPasswordHash() { return passwordHash; }
     public String getRole() { return role; }
+
+    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
 }
