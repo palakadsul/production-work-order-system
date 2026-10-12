@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Access denied - PWOS</title>
+    <link
+        rel="stylesheet"
+        th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="login-wrap">
+    <div class="card login-card">
+        <div class="brand-icon">🔒</div>
+        <h1>Access denied</h1>
+        <p class="subtitle">Your role is not allowed to do that.</p>
+        <a
+            th:href="@{/}"
+            class="btn-primary btn-link">Back to the dashboard</a>
+    </div>
+</div>
+</body>
+</html>

@@ -94,14 +94,24 @@ class PwosJourneysIT extends SeleniumBase {
     }
 
     @Test
-    void j2_lowStockItemShowsAlert() {
+    void j2_lowStockAlertAndViewerIsReadOnly() {
         String name = "SelLow-" + uniq();
         addItem(name, "SEL-" + uniq(), 3, 5);
         WebElement alert = driver.findElement(By.xpath(
-            "//div[contains(@class,'alert')]"
-            + "[contains(.,'Low Stock Alert')]"));
+            "//div[contains(@class,'alert')][contains(.,'Low Stock Alert')]"));
         assertTrue(alert.getText().contains(name),
-            "Low-stock alert should list " + name);
+            "Low-stock alert names the item");
+
+        logout();
+        login("viewer", System.getProperty("pwos.viewer.password", "viewer123"));
+        driver.get(BASE_URL + "/items?q=" + name);
+        assertEquals(1, driver.findElements(row(name)).size(),
+            "Viewer can see the item");
+        assertEquals(0, driver.findElement(row(name))
+              .findElements(By.cssSelector("a.btn-edit, button.btn-delete")).size(),
+            "Viewer gets no Edit or Delete buttons");
+        assertEquals(0, driver.findElements(By.cssSelector("form.form-row")).size(),
+            "Viewer gets no Add Item form");
     }
 
     @Test

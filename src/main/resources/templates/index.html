@@ -84,9 +84,11 @@
 
         <div class="actions">
             <a
+                th:if="${canManageItems}"
                 class="btn-primary btn-link"
                 th:href="@{/items}">+ Add Item</a>
             <a
+                th:if="${canManageOrders}"
                 class="btn-primary btn-link"
                 th:href="@{/orders}">+ Create Work Order</a>
         </div>

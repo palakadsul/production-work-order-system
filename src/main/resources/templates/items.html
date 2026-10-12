@@ -99,9 +99,11 @@
                     <td>
                         <div class="row-actions">
                             <a
+                                th:if="${canManageItems}"
                                 th:href="@{/items/{id}/edit(id=${item.id})}"
                                 class="btn-edit">Edit</a>
                             <form
+                                th:if="${isAdmin}"
                                 th:action="@{/items/{id}/delete(id=${item.id})}"
                                 method="post">
                                 <button
@@ -117,7 +119,9 @@
                 th:if="${items.isEmpty()}">No items to show.</p>
         </div>
 
-        <div class="card">
+        <div
+            class="card"
+            th:if="${canManageItems}">
             <h3>Add New Item</h3>
             <form
                 th:action="@{/items}"
