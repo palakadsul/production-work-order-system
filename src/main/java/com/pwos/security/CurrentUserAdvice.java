@@ -29,6 +29,7 @@ public class CurrentUserAdvice {
 
         model.addAttribute("currentUser", loggedIn ? auth.getName() : null);
         model.addAttribute("currentRole", roles.stream()
+                .filter(r -> r.startsWith("ROLE_"))
                 .map(r -> r.replace("ROLE_", ""))
                 .findFirst().orElse(""));
         model.addAttribute("isAdmin", admin);

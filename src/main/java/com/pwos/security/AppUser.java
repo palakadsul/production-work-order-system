@@ -19,6 +19,10 @@ public class AppUser {
     @Column(nullable = false)
     private String role;
 
+    /** Null on rows created before this column existed; treated as enabled. */
+    @Column(name = "enabled")
+    private Boolean enabled = Boolean.TRUE;
+
     protected AppUser() {
     }
 
@@ -33,5 +37,9 @@ public class AppUser {
     public String getPasswordHash() { return passwordHash; }
     public String getRole() { return role; }
 
+    public boolean isEnabled() { return enabled == null || enabled; }
+
     public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
+    public void setRole(String role) { this.role = role; }
+    public void setEnabled(boolean enabled) { this.enabled = enabled; }
 }

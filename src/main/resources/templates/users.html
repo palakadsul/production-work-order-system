@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Users - PWOS</title>
+    <link
+        rel="stylesheet"
+        th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="app">
+    <div
+        th:replace="~{fragments :: sidebar('users')}"></div>
+
+    <div class="main">
+        <h1>Users</h1>
+        <p class="subtitle">Create logins and decide what each person may do</p>
+
+        <div class="stats">
+            <div class="stat blue">
+                <div class="label">Total users</div>
+                <div class="value" th:text="${users.size()}">0</div>
+            </div>
+            <div class="stat red">
+                <div class="label">Disabled</div>
+                <div class="value" th:text="${users.?[!enabled].size()}">0</div>
+            </div>
+        </div>
+
+        <div class="notice" th:if="${message}">
+            <span th:text="${message}"></span>
+        </div>
+        <div class="alert" th:if="${error}">
+            <span th:text="${error}"></span>
+        </div>
+
+        <div class="card">
+            <table>
+                <tr>
+                    <th>Username</th><th>Role</th><th>Status</th><th>Change role</th><th>Reset password</th><th></th>
+                </tr>
+                <tr th:each="u : ${users}">
+                    <td>
+                        <strong th:text="${u.username}">name</strong>
+                        <span class="u-tag" th:if="${builtIn.contains(u.username)}">built-in</span>
+                        <span class="u-tag" th:if="${u.username == currentUser}">you</span>
+                    </td>
+                    <td><span class="badge" th:classappend="'role-' + ${u.role}" th:text="${u.role}">ROLE</span></td>
+                    <td>
+                        <span class="badge" th:classappend="${u.enabled} ? 'u-on' : 'u-off'"
+                              th:text="${u.enabled} ? 'ACTIVE' : 'DISABLED'">ACTIVE</span>
+                    </td>
+                    <th:block th:if="${!builtIn.contains(u.username) and u.username != currentUser}">
+                        <td>
+                            <form th:action="@{/users/{id}/role(id=${u.id})}" method="post" class="u-inline">
+                                <select name="role">
+                                    <option th:each="r : ${roles}" th:value="${r}" th:text="${r}"
+                                            th:selected="${r == u.role}"></option>
+                                </select>
+                                <button type="submit" class="btn-edit">Save</button>
+                            </form>
+                        </td>
+                        <td>
+                            <form th:action="@{/users/{id}/password(id=${u.id})}" method="post" class="u-inline">
+                                <input type="password" name="password" placeholder="New password" minlength="8" required>
+                                <button type="submit" class="btn-edit">Reset</button>
+                            </form>
+                        </td>
+                        <td>
+                            <form th:action="@{/users/{id}/toggle(id=${u.id})}" method="post">
+                                <button type="submit" class="u-toggle"
+                                        th:text="${u.enabled} ? 'Disable' : 'Enable'">Disable</button>
+                            </form>
+                        </td>
+                    </th:block>
+                    <td colspan="3" class="u-locked"
+                        th:if="${builtIn.contains(u.username) or u.username == currentUser}">
+                        Locked: managed by the secrets file
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="card">
+            <h3>Add New User</h3>
+            <form th:action="@{/users}" method="post" class="u-inline u-create">
+                <input type="text" name="username" placeholder="Username (e.g. ravi.k)" required>
+                <input type="password" name="password" placeholder="Password (min 8)" minlength="8" required>
+                <select name="role">
+                    <option th:each="r : ${roles}" th:value="${r}" th:text="${r}"
+                            th:selected="${r == 'VIEWER'}"></option>
+                </select>
+                <button type="submit" class="btn-primary">Add User</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
