@@ -195,3 +195,39 @@ select:focus, input:focus { outline: none; border-color: #4f6bed; }
 .badge.act-STATUS { background: #fff6e5; color: #a8650a; }
 .badge.act-CANCEL { background: #e5e7eb; color: #4b5563; }
 .badge.act-DELETE { background: #fdecea; color: #b42318; }
+
+/* --- Users page --- */
+.u-inline { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.u-inline input, .u-inline select {
+    padding: 8px 10px; border: 1px solid #d6d9e6; border-radius: 8px;
+    font: inherit; background: #fafbff; }
+.u-create input, .u-create select { flex: 1; min-width: 160px; padding: 11px 12px; }
+.u-tag { margin-left: 6px; font-size: 11px; color: #6b7280; background: #eef0f6;
+    padding: 2px 6px; border-radius: 6px; }
+.u-locked { color: #8a90a6; font-size: 13px; font-style: italic; }
+.u-toggle { padding: 7px 14px; border-radius: 8px; border: 1px solid #f0b4ae;
+    background: #fff; color: #b42318; cursor: pointer; font: inherit; }
+.badge.u-on  { background: #e8f6ec; color: #1e7a3a; }
+.badge.u-off { background: #fdecea; color: #b42318; }
+.badge.role-ADMIN      { background: #ede9fe; color: #5b21b6; }
+.badge.role-SUPERVISOR { background: #fff6e5; color: #a8650a; }
+.badge.role-CLERK      { background: #eef1fd; color: #3446c4; }
+.badge.role-VIEWER     { background: #e5e7eb; color: #4b5563; }
+
+/* --- Users page --- */
+.u-inline { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.u-inline input, .u-inline select {
+    padding: 8px 10px; border: 1px solid #d6d9e6; border-radius: 8px;
+    font: inherit; background: #fafbff; }
+.u-create input, .u-create select { flex: 1; min-width: 160px; padding: 11px 12px; }
+.u-tag { margin-left: 6px; font-size: 11px; color: #6b7280; background: #eef0f6;
+    padding: 2px 6px; border-radius: 6px; }
+.u-locked { color: #8a90a6; font-size: 13px; font-style: italic; }
+.u-toggle { padding: 7px 14px; border-radius: 8px; border: 1px solid #f0b4ae;
+    background: #fff; color: #b42318; cursor: pointer; font: inherit; }
+.badge.u-on  { background: #e8f6ec; color: #1e7a3a; }
+.badge.u-off { background: #fdecea; color: #b42318; }
+.badge.role-ADMIN      { background: #ede9fe; color: #5b21b6; }
+.badge.role-SUPERVISOR { background: #fff6e5; color: #a8650a; }
+.badge.role-CLERK      { background: #eef1fd; color: #3446c4; }
+.badge.role-VIEWER     { background: #e5e7eb; color: #4b5563; }

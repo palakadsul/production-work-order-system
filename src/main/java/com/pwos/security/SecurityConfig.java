@@ -20,6 +20,7 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/login", "/css/**", "/error").permitAll()
+                .requestMatchers("/users", "/users/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST,
                         "/items/*/delete", "/orders/*/delete").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST,

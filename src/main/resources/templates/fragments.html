@@ -37,6 +37,13 @@
             th:href="@{/history}">
             <span class="nav-icon">🕘</span>History
         </a>
+        <a
+            class="nav-item"
+            th:if="${isAdmin}"
+            th:classappend="${active == 'users'} ? 'active'"
+            th:href="@{/users}">
+            <span class="nav-icon">👥</span>Users
+        </a>
     </div>
     <div
         class="user-panel"
