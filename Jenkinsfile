@@ -26,6 +26,19 @@ pipeline {
             }
         }
 
+        stage('Unit Tests') {
+            steps {
+                sh 'mvn -B test -Dtest=WorkOrderServiceTest -Dsurefire.failIfNoSpecifiedTests=false'
+                sh '''awk -F, '$3=="WorkOrderService"{printf "WorkOrderService line coverage: %d%%\\n", 100*$9/($8+$9)}' target/site/jacoco/jacoco.csv || true'''
+            }
+            post {
+                always {
+                    junit testResults: 'target/surefire-reports/TEST-*ServiceTest.xml', allowEmptyResults: true
+                    archiveArtifacts artifacts: 'target/site/jacoco/**', allowEmptyArchive: true
+                }
+            }
+        }
+
         stage('Package') {
             steps {
                 sh 'mvn -B package -DskipTests'
@@ -63,7 +76,7 @@ pipeline {
             }
             post {
                 always {
-                    junit testResults: 'target/surefire-reports/*.xml',
+                    junit testResults: 'target/surefire-reports/TEST-com.pwos.selenium.*.xml',
                           allowEmptyResults: true
                     archiveArtifacts artifacts: 'target/screenshots/*.png',
                                      allowEmptyArchive: true
