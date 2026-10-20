@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Account - PWOS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="app">
+    <div th:replace="~{fragments :: sidebar('account')}"></div>
+    <div class="main">
+        <h1>My Account</h1>
+        <p class="subtitle" th:text="'Signed in as ' + ${currentUser} + ' (' + ${currentRole} + ')'">Signed in</p>
+
+        <div class="notice" th:if="${message}"><span th:text="${message}"></span></div>
+        <div class="alert" th:if="${error}"><span th:text="${error}"></span></div>
+
+        <div class="card account-card">
+            <h3>Change password</h3>
+            <form th:action="@{/account/password}" method="post" class="account-form">
+                <label>Current password
+                    <input type="password" name="currentPassword" required autocomplete="current-password">
+                </label>
+                <label>New password (at least 8 characters)
+                    <input type="password" name="newPassword" minlength="8" required autocomplete="new-password">
+                </label>
+                <label>Confirm new password
+                    <input type="password" name="confirmPassword" minlength="8" required autocomplete="new-password">
+                </label>
+                <button type="submit" class="btn-primary">Change password</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
