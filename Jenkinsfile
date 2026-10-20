@@ -57,6 +57,22 @@ pipeline {
             }
         }
 
+        stage('Security Scan (Trivy)') {
+            steps {
+                sh '''
+                    export PATH=/opt/homebrew/bin:$PATH
+                    trivy image -q --scanners vuln --severity HIGH,CRITICAL -o trivy-report.txt $IMAGE || true
+                    trivy image -q --scanners vuln --severity CRITICAL --ignore-unfixed --exit-code 1 $IMAGE
+                    echo "Trivy: no fixable CRITICAL vulnerabilities"
+                '''
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'trivy-report.txt', allowEmptyArchive: true
+                }
+            }
+        }
+
         stage('Deploy to Test') {
             steps {
                 sh 'bash scripts/deploy-container.sh pwos-test $IMAGE $TEST_PORT'

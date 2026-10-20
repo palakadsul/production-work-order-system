@@ -27,6 +27,9 @@
 		<url/>
 	</scm>
 	<properties>
+		<!-- Security: patched versions to fix CRITICAL CVEs found by Trivy -->
+		<tomcat.version>11.0.25</tomcat.version>
+		<spring-framework.version>7.0.9</spring-framework.version>
 		<java.version>21</java.version>
 	</properties>
 	<dependencies>
