@@ -87,7 +87,7 @@
                 <tr>
                     <th>ID</th><th>Name</th><th>SKU</th><th>Quantity</th><th>Reorder Threshold</th><th></th>
                 </tr>
-                <tr th:each="item : ${items}">
+                <tr th:each="item : ${@pagingService.page(items, param.page).content()}">
                     <td th:text="${item.id}"></td>
                     <td th:text="${item.name}"></td>
                     <td th:text="${item.sku}"></td>
@@ -115,6 +115,11 @@
                     </td>
                 </tr>
             </table>
+            <th:block th:with="pg=${@pagingService.page(items, param.page)}"><div class="pager" th:if="${pg.totalPages() > 1}">
+                <a th:if="${pg.hasPrev()}" th:href="@{/items(q=${q},page=${pg.page() - 1})}">&laquo; Prev</a>
+                <span th:text="${'Page ' + pg.page() + ' of ' + pg.totalPages() + '  (' + pg.from() + '-' + pg.to() + ' of ' + pg.total() + ')'}">Page 1 of 1</span>
+                <a th:if="${pg.hasNext()}" th:href="@{/items(q=${q},page=${pg.page() + 1})}">Next &raquo;</a>
+            </div></th:block>
             <p
                 class="search-info"
                 th:if="${items.isEmpty()}">No items to show.</p>

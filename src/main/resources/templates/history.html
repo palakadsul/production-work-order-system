@@ -22,7 +22,7 @@
                 <tr>
                     <th>When</th><th>User</th><th>Action</th><th>What</th><th>Details</th>
                 </tr>
-                <tr th:each="e : ${entries}">
+                <tr th:each="e : ${@pagingService.page(entries, param.page).content()}">
                     <td th:text="${#temporals.format(e.eventTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
                     <td th:text="${e.username}"></td>
                     <td>
@@ -35,6 +35,11 @@
                     <td th:text="${e.details}"></td>
                 </tr>
             </table>
+            <th:block th:with="pg=${@pagingService.page(entries, param.page)}"><div class="pager" th:if="${pg.totalPages() > 1}">
+                <a th:if="${pg.hasPrev()}" th:href="@{/history(page=${pg.page() - 1})}">&laquo; Prev</a>
+                <span th:text="${'Page ' + pg.page() + ' of ' + pg.totalPages() + '  (' + pg.from() + '-' + pg.to() + ' of ' + pg.total() + ')'}">Page 1 of 1</span>
+                <a th:if="${pg.hasNext()}" th:href="@{/history(page=${pg.page() + 1})}">Next &raquo;</a>
+            </div></th:block>
             <p
                 class="search-info"
                 th:if="${entries.isEmpty()}">No changes recorded yet.</p>
