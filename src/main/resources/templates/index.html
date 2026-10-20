@@ -95,6 +95,29 @@
 
         <div class="two-col">
             <div class="card">
+                <h3>Orders by Status</h3>
+                <div class="chart-row" th:each="b : ${statusBars}">
+                    <span class="chart-label" th:text="${b.label()}">Pending</span>
+                    <div class="chart-track">
+                        <div class="chart-bar" th:classappend="${b.css()}" th:style="${'width:' + b.percent() + '%'}"></div>
+                    </div>
+                    <span class="chart-value" th:text="${b.count() + ' (' + b.percent() + '%)'}">0</span>
+                </div>
+                <p class="chart-legend" th:text="${totalOrders + ' order(s) in total'}">0 orders</p>
+            </div>
+            <div class="card">
+                <h3>Stock vs Reorder Threshold</h3>
+                <div class="chart-row" th:each="s : ${stockBars}">
+                    <span class="chart-label" th:text="${s.name()}">item</span>
+                    <div class="chart-track">
+                        <div class="chart-bar" th:classappend="${s.low()} ? 'bar-low' : 'bar-ok'" th:style="${'width:' + s.widthPct() + '%'}"></div>
+                        <div class="chart-marker" th:style="${'left:' + s.thresholdPct() + '%'}" th:title="${'Reorder at ' + s.threshold()}"></div>
+                    </div>
+                    <span class="chart-value" th:text="${s.quantity() + ' / ' + s.threshold()}">0</span>
+                </div>
+                <p class="chart-legend">Bar = stock &middot; dark line = reorder threshold &middot; red = low stock</p>
+            </div>
+            <div class="card">
                 <h3>Recent Orders</h3>
                 <table>
                     <tr>
