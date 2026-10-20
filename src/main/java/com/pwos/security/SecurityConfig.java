@@ -19,7 +19,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/css/**", "/error").permitAll()
+                .requestMatchers("/login", "/css/**", "/error", "/actuator/health", "/actuator/prometheus").permitAll()
                 .requestMatchers("/users", "/users/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST,
                         "/items/*/delete", "/orders/*/delete").hasRole("ADMIN")
