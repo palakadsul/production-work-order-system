@@ -262,3 +262,8 @@ select:focus, input:focus { outline: none; border-color: #4f6bed; }
 .bar-cancelled { background: #9ca3af; }
 .bar-ok { background: #2ea86b; }
 .bar-low { background: #e5484d; }
+
+/* --- Pagination --- */
+.pager { display: flex; align-items: center; justify-content: center; gap: 18px; margin-top: 18px; font-size: 14px; color: #6b7280; }
+.pager a { padding: 7px 14px; border: 1px solid #c7cdf5; border-radius: 8px; color: #3446c4; text-decoration: none; }
+.pager a:hover { background: #eef1fd; }

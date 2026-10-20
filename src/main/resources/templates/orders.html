@@ -101,7 +101,7 @@
                 <tr>
                     <th>ID</th><th>Item</th><th>Quantity</th><th>Due Date</th><th>Status</th><th>Update</th><th></th>
                 </tr>
-                <tr th:each="order : ${orders}">
+                <tr th:each="order : ${@pagingService.page(orders, param.page).content()}">
                     <td th:text="${order.id}"></td>
                     <td th:text="${order.item.name}"></td>
                     <td th:text="${order.quantity}"></td>
@@ -165,6 +165,11 @@
                     </td>
                 </tr>
             </table>
+            <th:block th:with="pg=${@pagingService.page(orders, param.page)}"><div class="pager" th:if="${pg.totalPages() > 1}">
+                <a th:if="${pg.hasPrev()}" th:href="@{/orders(q=${q},status=${statusFilter},from=${from},to=${to},page=${pg.page() - 1})}">&laquo; Prev</a>
+                <span th:text="${'Page ' + pg.page() + ' of ' + pg.totalPages() + '  (' + pg.from() + '-' + pg.to() + ' of ' + pg.total() + ')'}">Page 1 of 1</span>
+                <a th:if="${pg.hasNext()}" th:href="@{/orders(q=${q},status=${statusFilter},from=${from},to=${to},page=${pg.page() + 1})}">Next &raquo;</a>
+            </div></th:block>
             <p
                 class="search-info"
                 th:if="${orders.isEmpty()}">No orders to show.</p>
