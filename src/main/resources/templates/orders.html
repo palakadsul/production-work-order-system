@@ -77,6 +77,12 @@
                         value="CANCELLED"
                         th:selected="${statusFilter == 'CANCELLED'}">Cancelled</option>
                 </select>
+                <label class="date-label">Due from
+                    <input type="date" name="from" th:value="${from}">
+                </label>
+                <label class="date-label">to
+                    <input type="date" name="to" th:value="${to}">
+                </label>
                 <button
                     type="submit"
                     class="btn-primary">Search</button>

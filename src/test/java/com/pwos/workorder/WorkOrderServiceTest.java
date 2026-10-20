@@ -175,4 +175,24 @@ class WorkOrderServiceTest {
         verify(orders).delete(o);
         verify(audit).record(eq("DELETE"), eq("ORDER"), eq(7L), anyString());
     }
+
+    @Test
+    void dateRangeIncludesBothEnds() {
+        WorkOrder o = new WorkOrder();
+        o.setDueDate(LocalDate.of(2026, 10, 20));
+        assertTrue(WorkOrderService.dueBetween(o, LocalDate.of(2026, 10, 20), LocalDate.of(2026, 10, 20)));
+        assertTrue(WorkOrderService.dueBetween(o, LocalDate.of(2026, 10, 1), null));
+        assertFalse(WorkOrderService.dueBetween(o, LocalDate.of(2026, 10, 21), null));
+        assertFalse(WorkOrderService.dueBetween(o, null, LocalDate.of(2026, 10, 19)));
+    }
+
+    @Test
+    void noDateRangeMatchesEveryOrder() {
+        assertTrue(WorkOrderService.dueBetween(new WorkOrder(), null, null));
+    }
+
+    @Test
+    void orderWithoutDueDateIsExcludedWhenARangeIsSet() {
+        assertFalse(WorkOrderService.dueBetween(new WorkOrder(), LocalDate.of(2026, 1, 1), null));
+    }
 }
