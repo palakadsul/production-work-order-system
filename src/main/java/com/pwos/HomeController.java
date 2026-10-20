@@ -18,11 +18,14 @@ public class HomeController {
 
     private final ItemRepository itemRepository;
     private final WorkOrderRepository workOrderRepository;
+    private final DashboardChartService charts;
 
     public HomeController(ItemRepository itemRepository,
-                          WorkOrderRepository workOrderRepository) {
+                          WorkOrderRepository workOrderRepository,
+                          DashboardChartService charts) {
         this.itemRepository = itemRepository;
         this.workOrderRepository = workOrderRepository;
+        this.charts = charts;
     }
 
     @GetMapping("/")
@@ -62,6 +65,9 @@ public class HomeController {
         model.addAttribute("inProgressCount", inProgress);
         model.addAttribute("doneCount", done);
         model.addAttribute("recentOrders", recentOrders);
+        model.addAttribute("totalOrders", orders.size());
+        model.addAttribute("statusBars", charts.statusBars(orders));
+        model.addAttribute("stockBars", charts.stockBars(items, 10));
         return "index";
     }
 }
