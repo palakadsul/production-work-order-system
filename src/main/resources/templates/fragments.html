@@ -54,6 +54,7 @@
         <div
             class="user-role"
             th:text="${currentRole}">ROLE</div>
+        <a class="user-link" th:href="@{/account}">Change password</a>
         <form
             th:action="@{/logout}"
             method="post">
