@@ -33,6 +33,18 @@ public class WorkOrderService {
         this.audit = audit;
     }
 
+    /** True if the due date is within [from, to]; open ends are ignored. No range means every order matches. */
+    static boolean dueBetween(WorkOrder o, LocalDate from, LocalDate to) {
+        if (from == null && to == null) {
+            return true;
+        }
+        LocalDate due = o.getDueDate();
+        if (due == null) {
+            return false;
+        }
+        return (from == null || !due.isBefore(from)) && (to == null || !due.isAfter(to));
+    }
+
     static boolean isOpen(WorkOrder o) {
         return "PENDING".equals(o.getStatus()) || "IN_PROGRESS".equals(o.getStatus());
     }

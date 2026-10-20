@@ -29,6 +29,8 @@ public class WorkOrderController {
     public String listOrders(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String q,
+            @RequestParam(required = false) LocalDate from,
+            @RequestParam(required = false) LocalDate to,
             Model model) {
         String statusFilter = (status == null) ? "" : status.trim();
         String search = (q == null) ? "" : q.trim();
@@ -42,6 +44,7 @@ public class WorkOrderController {
                 .filter(o -> needle.isEmpty()
                         || o.getItem().getName().toLowerCase().contains(needle)
                         || o.getItem().getSku().toLowerCase().contains(needle))
+                .filter(o -> WorkOrderService.dueBetween(o, from, to))
                 .sorted(Comparator.comparing(WorkOrder::getId))
                 .collect(Collectors.toList());
 
@@ -56,6 +59,8 @@ public class WorkOrderController {
         model.addAttribute("items", itemRepository.findAll());
         model.addAttribute("statusFilter", statusFilter);
         model.addAttribute("q", search);
+        model.addAttribute("from", from);
+        model.addAttribute("to", to);
         model.addAttribute("overdueOrders", overdueOrders);
         return "orders";
     }
