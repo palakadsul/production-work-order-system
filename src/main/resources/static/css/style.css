@@ -244,3 +244,6 @@ select:focus, input:focus { outline: none; border-color: #4f6bed; }
 .account-form label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #6b7280; }
 .account-form input { padding: 11px 12px; border: 1px solid #d6d9e6; border-radius: 8px; font: inherit; background: #fafbff; }
 .account-form button { align-self: flex-start; }
+
+/* --- CSV export button --- */
+.export-link { display: inline-block; margin: 0 0 16px; text-decoration: none; }
